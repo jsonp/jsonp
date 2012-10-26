@@ -6,17 +6,17 @@ import java.io.Reader;
 
 public class JsonTokenizer implements Closeable {
 
-    private Reader reader;
+    private Reader       reader;
 
     private final char[] buf;
-    private int    bufLen;
-    private int    index;
-    private Token  token;
-    private char   ch;
+    private int          bufLen;
+    private int          index;
+    private Token        token;
+    private char         ch;
 
-    private String stringValue;
-    private long   longValue;
-    private double doubleValue;
+    private String       stringValue;
+    private long         longValue;
+    private double       doubleValue;
 
     /**
      * Creates a JSON reader from a character stream
@@ -273,6 +273,17 @@ public class JsonTokenizer implements Closeable {
                     strBuf.append('\f');
                 } else if (ch == 't') {
                     strBuf.append('\t');
+                } else if (ch == 'u') {
+                    nextChar();
+                    char u1 = ch;
+                    nextChar();
+                    char u2 = ch;
+                    nextChar();
+                    char u3 = ch;
+                    nextChar();
+                    char u4 = ch;
+                    char uChar = (char) Integer.parseInt(new String(new char[] { u1, u2, u3, u4 }), 16);
+                    strBuf.append(uChar);
                 } else {
                     throw new IllegalArgumentException("illegal string : " + strBuf);
                 }
