@@ -12,14 +12,14 @@ import javax.json.JsonReader;
 
 import junit.framework.TestCase;
 
-public class Benchmark_Reader_Media_1 extends TestCase {
+public class Benchmark_Reader_Media_2 extends TestCase {
     private String text;
 
-    public void test_readMedia_1() throws Exception {
+    public void test_readMedia_2() throws Exception {
 
         StringWriter writer = new StringWriter();
         
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("media.1.json");
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("media.2.json");
         Reader reader = new InputStreamReader(in);
         
         char[] buf = new char[1024];
