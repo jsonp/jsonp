@@ -2,9 +2,12 @@ package com.alibaba.jsonp.demo;
 
 import javax.json.JsonWriter;
 
-public class Stream_Writer_Case0 {
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
-    public static void main(String[] args) throws Exception {
+public class Stream_Writer_Case0 extends TestCase {
+
+    public void test_stream_write() throws Exception {
         StringBuilder buf = new StringBuilder();
 
         JsonWriter writer = new JsonWriter(buf);
@@ -16,7 +19,7 @@ public class Stream_Writer_Case0 {
         .writeKeyValue("name", "jitu") //
         .writeEndObject() //
         .close();
-
-        System.out.println(buf.toString());
+        
+        Assert.assertEquals("{\"id\":123,\"name\":\"jitu\"}", buf.toString());
     }
 }

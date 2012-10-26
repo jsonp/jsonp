@@ -158,6 +158,10 @@ public class JsonArray implements List<Object> {
     public Object get(int index) {
         return items.get(index);
     }
+    
+    public JsonObject getJsonObject(int index) {
+        return (JsonObject) get(index);
+    }
 
     @Override
     public Object set(int index, Object o) {
