@@ -41,6 +41,7 @@
 package javax.json;
 
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -164,14 +165,36 @@ public class JsonArray extends JsonStructure implements List<Object> {
         return (JsonObject) get(index);
     }
     
+    public boolean getBooleanValue(int index) {
+        return getBooleanValue(index, false);
+    }
+    
+    public boolean getBooleanValue(int index, boolean defaultValue) {
+        Object value = items.get(index);
+        return toBooleanValue(value, defaultValue);
+    }
+    
+    public int getIntValue(int index) {
+        return getIntValue(index, 0);
+    }
+    
     public int getIntValue(int index, int defaultValue) {
         Object value = items.get(index);
         return toIntValue(value, defaultValue);
     }
     
+    public long getLongValue(int index) {
+        return getLongValue(index, 0L);
+    }
+    
     public long getLongValue(int index, long defaultValue) {
         Object value = items.get(index);
         return toLongValue(value, defaultValue);
+    }
+    
+    public BigDecimal getBigDecimal(int index) {
+        Object value = items.get(index);
+        return toBigDecimal(value);
     }
 
     @Override

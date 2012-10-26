@@ -41,6 +41,7 @@
 package javax.json;
 
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -100,16 +101,36 @@ public class JsonObject extends JsonStructure implements Map<String, Object> {
         return value.toString();
     }
 
+    public boolean getBooleanValue(String key) {
+        return getBooleanValue(key, false);
+    }
+
+    public boolean getBooleanValue(String key, boolean defaultValue) {
+        Object value = map.get(key);
+        return toBooleanValue(value, defaultValue);
+    }
+
+    public int getIntValue(String key) {
+        return getIntValue(key, 0);
+    }
+
     public int getIntValue(String key, int defaultValue) {
         Object value = map.get(key);
-
         return toIntValue(value, defaultValue);
     }
-    
+
+    public long getLongValue(String key) {
+        return getLongValue(key, 0L);
+    }
+
     public long getLongValue(String key, long defaultValue) {
         Object value = map.get(key);
-        
         return toLongValue(value, defaultValue);
+    }
+    
+    public BigDecimal getBigDecimal(String key) {
+        Object value = map.get(key);
+        return toBigDecimal(value);
     }
 
     public JsonObject getJsonObject(String key) {
