@@ -42,7 +42,6 @@ package javax.json;
 
 import java.io.Closeable;
 import java.io.Reader;
-import java.util.Map;
 
 import javax.json.JsonTokenizer.Token;
 
@@ -162,9 +161,9 @@ public class JsonReader implements /* Auto */Closeable {
      * @throws JsonException if a JsonObject or JsonArray cannot be created due to i/o error or incorrect representation
      * @throws IllegalStateException if this method or close method is already called
      */
-    public Object readJsonObject() {
+    public JsonObject readJsonObject() {
         tokenizer.accept(Token.LBRACE);
-        Map<String, Object> map = new JsonObject();
+        JsonObject map = new JsonObject();
 
         for (;;) {
             Token token = tokenizer.token();

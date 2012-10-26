@@ -86,6 +86,27 @@ public class JsonObject implements Map<String, Object> {
     public Object get(Object o) {
         return map.get(o);
     }
+    
+    public String getString(String key) {
+        Object value = map.get(key);
+        if (value == null) {
+            return null;
+        }
+        
+        if (value.getClass() == String.class) {
+            return (String) value;
+        }
+        
+        return value.toString();
+    }
+    
+    public JsonObject getJsonObject(String key) {
+        return (JsonObject) map.get(key);
+    }
+    
+    public JsonArray getJsonArray(String key) {
+        return (JsonArray) map.get(key);
+    }
 
     @Override
     public Object put(String key, Object value) {

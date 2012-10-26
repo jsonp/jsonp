@@ -8,7 +8,7 @@ public class JsonTokenizer implements Closeable {
 
     private Reader reader;
 
-    private char[] buf;
+    private final char[] buf;
     private int    bufLen;
     private int    index;
     private Token  token;
@@ -120,10 +120,14 @@ public class JsonTokenizer implements Closeable {
             case '"':
                 scanString();
                 break;
+            case '+':
+            case '-':
+                scanDigit();
+                break;
             default:
                 if (isDigit(ch) || ch == '-') {
                     scanDigit();
-                    return;
+                    break;
                 }
 
                 if (ch == 'n') {

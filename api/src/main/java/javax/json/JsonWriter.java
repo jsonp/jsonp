@@ -142,12 +142,23 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
         write("null");
         return this;
     }
-
+    
     public JsonWriter writeString(String value) {
+        return writeString(value, true);
+    }
+
+    public JsonWriter writeString(String value, boolean checkSpecial) {
+        if (!checkSpecial) {
+            write('"');
+            write(value);
+            write('"');
+            return this;
+        }
+        
         if (value == null) {
             return writeNull();
         }
-
+        
         write('"');
         for (int i = 0; i < value.length(); ++i) {
             char c = value.charAt(i);
@@ -161,6 +172,10 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
                 write("\\\\");
             } else if (c == '\t') {
                 write("\\t");
+            } else if (c == '\b') {
+                write("\\b");
+            } else if (c == '\f') {
+                write("\\f");
             } else {
                 write(c);
             }
