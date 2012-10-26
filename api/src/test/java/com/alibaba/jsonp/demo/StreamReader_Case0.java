@@ -1,20 +1,34 @@
 package com.alibaba.jsonp.demo;
 
 import java.io.StringReader;
+import java.util.Iterator;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.json.JsonStreamReader;
+import javax.json.JsonStreamReader.Context;
+import javax.json.JsonStreamReader.Event;
 
-public class StreamReader_Case0 {
-    public static void main(String[] args) throws Exception {
-	StringReader strReader = new StringReader("[{\"id\":123,\"name\":\"jitu\"},{\"id\":234,\"name\":\"wenshao\"}]");
-	JsonReader jsonReader = new JsonReader(strReader);
-	
-	Object obj = jsonReader.read();
-	
-	JsonArray jsonArray = (JsonArray) obj;
-	
-	System.out.println(jsonArray.toString());
+import junit.framework.TestCase;
+
+public class StreamReader_Case0 extends TestCase {
+    public void test_streamReader_0() {
+	StringReader strReader = new StringReader(
+		"[{\"id\":123,\"name\":\"jitu\"},{\"id\":234,\"name\":\"wenshao\"}]");
+	JsonStreamReader jsonStreamReader = new JsonStreamReader(strReader);
+
+	Iterator<Event> events = jsonStreamReader.iterator();
+	for (; events.hasNext();) {
+	    Context context = jsonStreamReader.getContext();
+
+	    Event event = events.next();
+
+	    if (context != null) {
+		for (int i = 0; i <= context.getLevel(); ++i) {
+		    System.out.print("\t");
+		}
+	    }
+
+	    System.out.print(event);
+	    System.out.println();
+	}
     }
 }

@@ -49,6 +49,7 @@ import java.util.ListIterator;
 /**
  * 
  * @author Jitendra Kotamraju
+ * @author wenshao
  */
 public class JsonArray implements List<Object> {
     private final List<Object> items;

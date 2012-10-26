@@ -40,7 +40,7 @@ public class JsonTokenizer implements Closeable {
 	    return;
 	}
 
-	throw new IllegalArgumentException("illegal token : " + token
+	throw new IllegalArgumentException("illegal token : " + this.token
 		+ ", expect " + token);
     }
 
@@ -180,7 +180,7 @@ public class JsonTokenizer implements Closeable {
 	return ch >= '0' && ch <= '9';
     }
 
-    void nextChar() {
+    private void nextChar() {
 	if (index == bufLen) {
 	    try {
 		bufLen = reader.read(buf);
@@ -280,11 +280,10 @@ public class JsonTokenizer implements Closeable {
 	token = Token.STRING;
     }
 
-    enum Token {
+    public enum Token {
 	INT, //
 	DOUBLE, //
 	STRING, //
-	BOOLEAN, //
 	TRUE, //
 	FALSE, //
 	NULL, //
