@@ -47,162 +47,165 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * 
  * @author Jitendra Kotamraju
  * @author wenshao
  */
 public class JsonArray implements List<Object> {
+
     private final List<Object> items;
 
-    public JsonArray() {
-	items = new ArrayList<Object>();
+    public JsonArray(){
+        items = new ArrayList<Object>();
     }
 
     public <T> T get(int index, Class<T> clazz) {
-	return null;
+        return null;
     }
 
     @Override
     public int size() {
-	return items.size();
+        return items.size();
     }
 
     @Override
     public boolean isEmpty() {
-	return items.isEmpty();
+        return items.isEmpty();
     }
 
     @Override
     public boolean contains(Object o) {
-	return items.contains(o);
+        return items.contains(o);
     }
 
     @Override
     public Iterator<Object> iterator() {
-	return items.iterator();
+        return items.iterator();
     }
 
     @Override
     public Object[] toArray() {
-	return items.toArray();
+        return items.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] ts) {
-	return items.toArray(ts);
+        return items.toArray(ts);
     }
 
     @Override
     public boolean add(Object o) {
-	return items.add(o);
+        return items.add(o);
     }
 
     @Override
     public boolean remove(Object o) {
-	return items.remove(o);
+        return items.remove(o);
     }
 
     @Override
     public boolean containsAll(Collection<?> objects) {
-	return items.containsAll(objects);
+        return items.containsAll(objects);
     }
 
     @Override
     public boolean addAll(Collection<? extends Object> objects) {
-	return items.addAll(objects);
+        return items.addAll(objects);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends Object> objects) {
-	return items.addAll(index, objects);
+        return items.addAll(index, objects);
     }
 
     @Override
     public boolean removeAll(Collection<?> objects) {
-	return items.removeAll(objects);
+        return items.removeAll(objects);
     }
 
     @Override
     public boolean retainAll(Collection<?> objects) {
-	return items.retainAll(objects);
+        return items.retainAll(objects);
     }
 
     @Override
     public void clear() {
-	items.clear();
+        items.clear();
     }
 
     @Override
     public int hashCode() {
-	return items.hashCode();
+        return items.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
+        if (this == obj) {
+            return true;
+        }
 
-	if (obj == null)
-	    return false;
+        if (obj == null) {
+            return false;
+        }
 
-	if (getClass() != obj.getClass())
-	    return false;
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
 
-	return this.items.equals(((JsonArray) obj).items);
+        return this.items.equals(((JsonArray) obj).items);
     }
 
     @Override
     public Object get(int index) {
-	return items.get(index);
+        return items.get(index);
     }
 
     @Override
     public Object set(int index, Object o) {
-	return items.set(index, o);
+        return items.set(index, o);
     }
 
     @Override
     public void add(int index, Object o) {
-	items.add(index, o);
+        items.add(index, o);
     }
 
     @Override
     public Object remove(int index) {
-	return items.remove(index);
+        return items.remove(index);
     }
 
     @Override
     public int indexOf(Object o) {
-	return items.indexOf(o);
+        return items.indexOf(o);
     }
 
     @Override
     public int lastIndexOf(Object o) {
-	return items.lastIndexOf(o);
+        return items.lastIndexOf(o);
     }
 
     @Override
     public ListIterator<Object> listIterator() {
-	return items.listIterator();
+        return items.listIterator();
     }
 
     @Override
     public ListIterator<Object> listIterator(int index) {
-	return items.listIterator(index);
+        return items.listIterator(index);
     }
 
     @Override
     public List<Object> subList(int fromIndex, int toIndex) {
-	return items.subList(fromIndex, toIndex);
+        return items.subList(fromIndex, toIndex);
     }
 
     public String toString() {
-	StringBuilder buf = new StringBuilder();
+        StringBuilder buf = new StringBuilder();
 
-	JsonWriter writer = new JsonWriter(buf);
-	writer.writeObjectInternal(this);
-	writer.close();
+        JsonWriter writer = new JsonWriter(buf);
+        writer.writeObjectInternal(this);
+        writer.close();
 
-	return buf.toString();
+        return buf.toString();
     }
 }

@@ -46,107 +46,112 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 
  * @author Jitendra Kotamraju
  * @author wenshao
  */
 public class JsonObject implements Map<String, Object> {
+
     private final Map<String, Object> map;
 
-    public JsonObject() {
-	map = new LinkedHashMap<String, Object>();
+    public JsonObject(){
+        map = new LinkedHashMap<String, Object>();
     }
 
     public <T> T get(String key, Class<T> clazz) {
-	return null;
+        return null;
     }
 
     @Override
     public int size() {
-	return map.size();
+        return map.size();
     }
 
     @Override
     public boolean isEmpty() {
-	return map.isEmpty();
+        return map.isEmpty();
     }
 
     @Override
     public boolean containsKey(Object name) {
-	return map.containsKey(name);
+        return map.containsKey(name);
     }
 
     @Override
     public boolean containsValue(Object value) {
-	return map.containsValue(value);
+        return map.containsValue(value);
     }
 
     @Override
     public Object get(Object o) {
-	return map.get(o);
+        return map.get(o);
     }
 
     @Override
     public Object put(String key, Object value) {
-	return map.put(key, value);
+        return map.put(key, value);
     }
 
     @Override
     public Object remove(Object name) {
-	return map.remove(name);
+        return map.remove(name);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void putAll(Map map) {
-	map.putAll(map);
+        map.putAll(map);
     }
 
     @Override
     public void clear() {
-	map.clear();
+        map.clear();
     }
 
     @Override
     public Set<String> keySet() {
-	return map.keySet();
+        return map.keySet();
     }
 
     @Override
     public Collection<Object> values() {
-	return map.values();
+        return map.values();
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-	return map.entrySet();
+        return map.entrySet();
     }
 
     @Override
     public int hashCode() {
-	return map.hashCode();
+        return map.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (obj == null)
-	    return false;
-	if (getClass() != obj.getClass())
-	    return false;
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj == null) {
+            return false;
+        }
+        
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
 
-	JsonObject other = (JsonObject) obj;
-	return this.map.equals(other.map);
+        JsonObject other = (JsonObject) obj;
+        return this.map.equals(other.map);
     }
 
     public String toString() {
-	StringBuilder buf = new StringBuilder();
-	
-	JsonWriter writer = new JsonWriter(buf);
-	writer.writeObject(this);
-	writer.close();
-	
-	return buf.toString();
+        StringBuilder buf = new StringBuilder();
+
+        JsonWriter writer = new JsonWriter(buf);
+        writer.writeObject(this);
+        writer.close();
+
+        return buf.toString();
     }
 }
