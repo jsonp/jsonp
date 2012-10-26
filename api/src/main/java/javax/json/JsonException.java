@@ -48,6 +48,8 @@ package javax.json;
  */
 public class JsonException extends RuntimeException {
 
+    private static final long serialVersionUID = -3805447291331495507L;
+
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.  The cause is not initialized, and may subsequently be

@@ -29,7 +29,7 @@ public class StreamReader_Case0 extends TestCase {
                     && event != Event.END_OBJECT //
                     && event != Event.START_ARRAY //
                     && event != Event.END_ARRAY //
-                    ) {
+                ) {
                     System.out.print("\t");
                 }
             }

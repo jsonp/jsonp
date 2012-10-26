@@ -42,18 +42,14 @@ package javax.json;
 
 import java.io.Closeable;
 import java.io.Reader;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.json.JsonTokenizer.Token;
 
 /**
  * A JSON reader.
- * 
  * <p>
- * This reader reads a JSON object or array from the stream. For example:
- * 
- * <code>
+ * This reader reads a JSON object or array from the stream. For example: <code>
  * <pre>
  * An empty JSON array can be created as follows:
  * 
@@ -67,153 +63,148 @@ import javax.json.JsonTokenizer.Token;
  * @author wenshao
  */
 public class JsonReader implements /* Auto */Closeable {
+
     private JsonTokenizer tokenizer;
 
     /**
      * Creates a JSON reader from a character stream
      * 
-     * @param reader
-     *            a reader from which JSON is to be read
+     * @param reader a reader from which JSON is to be read
      * @return a JSON reader
      */
-    public JsonReader(Reader reader) {
-	tokenizer = new JsonTokenizer(reader);
+    public JsonReader(Reader reader){
+        tokenizer = new JsonTokenizer(reader);
     }
 
     public Object read() {
-	if (tokenizer.token() == Token.LBRACE) {
-	    return readJsonObject();
-	}
+        if (tokenizer.token() == Token.LBRACE) {
+            return readJsonObject();
+        }
 
-	Token token = tokenizer.token();
+        Token token = tokenizer.token();
 
-	if (token == Token.INT) {
-	    Object value;
+        if (token == Token.INT) {
+            Object value;
 
-	    if (tokenizer.longValue() >= Integer.MIN_VALUE
-		    && tokenizer.longValue() <= Integer.MAX_VALUE) {
-		value = (int) tokenizer.longValue();
-	    } else {
-		value = tokenizer.longValue();
-	    }
+            if (tokenizer.longValue() >= Integer.MIN_VALUE && tokenizer.longValue() <= Integer.MAX_VALUE) {
+                value = (int) tokenizer.longValue();
+            } else {
+                value = tokenizer.longValue();
+            }
 
-	    tokenizer.nextToken();
-	    return value;
-	}
+            tokenizer.nextToken();
+            return value;
+        }
 
-	if (token == Token.DOUBLE) {
-	    Object value = tokenizer.doubleValue();
-	    tokenizer.nextToken();
-	    return value;
-	}
+        if (token == Token.DOUBLE) {
+            Object value = tokenizer.doubleValue();
+            tokenizer.nextToken();
+            return value;
+        }
 
-	if (token == Token.STRING) {
-	    Object value = tokenizer.stringValue();
-	    tokenizer.nextToken();
-	    return value;
-	}
+        if (token == Token.STRING) {
+            Object value = tokenizer.stringValue();
+            tokenizer.nextToken();
+            return value;
+        }
 
-	if (token == Token.LBRACKET) {
-	    return readJsonArray();
-	}
+        if (token == Token.LBRACKET) {
+            return readJsonArray();
+        }
 
-	if (token == Token.TRUE) {
-	    tokenizer.nextToken();
-	    return true;
-	}
+        if (token == Token.TRUE) {
+            tokenizer.nextToken();
+            return true;
+        }
 
-	if (token == Token.FALSE) {
-	    tokenizer.nextToken();
-	    return false;
-	}
+        if (token == Token.FALSE) {
+            tokenizer.nextToken();
+            return false;
+        }
 
-	if (token == Token.NULL) {
-	    tokenizer.nextToken();
-	    return null;
-	}
+        if (token == Token.NULL) {
+            tokenizer.nextToken();
+            return null;
+        }
 
-	throw new IllegalArgumentException("illegal token : " + token);
+        throw new IllegalArgumentException("illegal token : " + token);
     }
 
     public JsonArray readJsonArray() {
-	tokenizer.accept(Token.LBRACKET);
-	JsonArray array = new JsonArray();
+        tokenizer.accept(Token.LBRACKET);
+        JsonArray array = new JsonArray();
 
-	for (;;) {
-	    Token token = tokenizer.token();
+        for (;;) {
+            Token token = tokenizer.token();
 
-	    if (token == Token.RBRACKET) {
-		break;
-	    }
+            if (token == Token.RBRACKET) {
+                break;
+            }
 
-	    if (token == Token.COMMA) {
-		tokenizer.nextToken();
-		continue;
-	    }
+            if (token == Token.COMMA) {
+                tokenizer.nextToken();
+                continue;
+            }
 
-	    Object item = read();
-	    array.add(item);
-	}
+            Object item = read();
+            array.add(item);
+        }
 
-	tokenizer.accept(Token.RBRACKET);
-	return array;
+        tokenizer.accept(Token.RBRACKET);
+        return array;
     }
 
     /**
-     * Returns a JSON array or object that is represented in the character
-     * stream. This method needs to be called only once for a reader instance.
+     * Returns a JSON array or object that is represented in the character stream. This method needs to be called only
+     * once for a reader instance.
      * 
      * @return a {@link JsonArray} or {@code JsonObject}
-     * @throws JsonException
-     *             if a JsonObject or JsonArray cannot be created due to i/o
-     *             error or incorrect representation
-     * @throws IllegalStateException
-     *             if this method or close method is already called
+     * @throws JsonException if a JsonObject or JsonArray cannot be created due to i/o error or incorrect representation
+     * @throws IllegalStateException if this method or close method is already called
      */
     public Object readJsonObject() {
-	tokenizer.accept(Token.LBRACE);
-	Map<String, Object> map = new JsonObject();
+        tokenizer.accept(Token.LBRACE);
+        Map<String, Object> map = new JsonObject();
 
-	for (;;) {
-	    Token token = tokenizer.token();
+        for (;;) {
+            Token token = tokenizer.token();
 
-	    if (token == Token.RBRACE) {
-		break;
-	    }
+            if (token == Token.RBRACE) {
+                break;
+            }
 
-	    if (token == Token.COMMA) {
-		tokenizer.nextToken();
-		continue;
-	    }
+            if (token == Token.COMMA) {
+                tokenizer.nextToken();
+                continue;
+            }
 
-	    String key;
-	    {
-		if (token != Token.STRING) {
-		    throw new IllegalArgumentException("illegal json token : "
-			    + token);
-		}
-		key = tokenizer.stringValue();
-		tokenizer.nextToken();
-	    }
+            String key;
+            {
+                if (token != Token.STRING) {
+                    throw new IllegalArgumentException("illegal json token : " + token);
+                }
+                key = tokenizer.stringValue();
+                tokenizer.nextToken();
+            }
 
-	    tokenizer.accept(Token.COLON);
+            tokenizer.accept(Token.COLON);
 
-	    Object value = read();
+            Object value = read();
 
-	    map.put(key, value);
-	}
+            map.put(key, value);
+        }
 
-	tokenizer.accept(Token.RBRACE);
-	return map;
+        tokenizer.accept(Token.RBRACE);
+        return map;
     }
 
     /**
-     * Closes this reader and frees any resources associated with the reader.
-     * This doesn't close the underlying input source.
+     * Closes this reader and frees any resources associated with the reader. This doesn't close the underlying input
+     * source.
      */
     @Override
     public void close() {
-	this.tokenizer.close();
+        this.tokenizer.close();
     }
 
 }
