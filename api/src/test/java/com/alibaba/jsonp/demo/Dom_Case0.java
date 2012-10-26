@@ -1,5 +1,6 @@
 package com.alibaba.jsonp.demo;
 
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 
 import junit.framework.Assert;
@@ -16,5 +17,14 @@ public class Dom_Case0 extends TestCase {
         Assert.assertTrue(json.containsKey("id"));
 
         Assert.assertEquals("{\"id\":123,\"name\":\"jitu\"}", json.toString());
+    }
+    
+    public void test_array_toString() throws Exception {
+        JsonArray jsonArray = new JsonArray();
+        jsonArray.add(123);
+        jsonArray.add("jitu");
+        jsonArray.add(new JsonObject());
+        
+        Assert.assertEquals("[123,\"jitu\",{}]", jsonArray.toString());
     }
 }
