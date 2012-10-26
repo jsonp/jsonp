@@ -51,7 +51,7 @@ import java.util.ListIterator;
  * @author Jitendra Kotamraju
  * @author wenshao
  */
-public class JsonArray implements List<Object> {
+public class JsonArray extends JsonStructure implements List<Object> {
 
     private final List<Object> items;
 
@@ -162,6 +162,16 @@ public class JsonArray implements List<Object> {
     
     public JsonObject getJsonObject(int index) {
         return (JsonObject) get(index);
+    }
+    
+    public int getIntValue(int index, int defaultValue) {
+        Object value = items.get(index);
+        return toIntValue(value, defaultValue);
+    }
+    
+    public long getLongValue(int index, long defaultValue) {
+        Object value = items.get(index);
+        return toLongValue(value, defaultValue);
     }
 
     @Override

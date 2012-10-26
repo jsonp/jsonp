@@ -50,7 +50,7 @@ import java.util.Set;
  * @author Jitendra Kotamraju
  * @author wenshao
  */
-public class JsonObject implements Map<String, Object> {
+public class JsonObject extends JsonStructure implements Map<String, Object> {
 
     private final Map<String, Object> map;
 
@@ -86,24 +86,36 @@ public class JsonObject implements Map<String, Object> {
     public Object get(Object o) {
         return map.get(o);
     }
-    
+
     public String getString(String key) {
         Object value = map.get(key);
         if (value == null) {
             return null;
         }
-        
+
         if (value.getClass() == String.class) {
             return (String) value;
         }
-        
+
         return value.toString();
     }
+
+    public int getIntValue(String key, int defaultValue) {
+        Object value = map.get(key);
+
+        return toIntValue(value, defaultValue);
+    }
     
+    public long getLongValue(String key, long defaultValue) {
+        Object value = map.get(key);
+        
+        return toLongValue(value, defaultValue);
+    }
+
     public JsonObject getJsonObject(String key) {
         return (JsonObject) map.get(key);
     }
-    
+
     public JsonArray getJsonArray(String key) {
         return (JsonArray) map.get(key);
     }
@@ -154,11 +166,11 @@ public class JsonObject implements Map<String, Object> {
         if (this == obj) {
             return true;
         }
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (getClass() != obj.getClass()) {
             return false;
         }
