@@ -10,25 +10,32 @@ import javax.json.JsonStreamReader.Event;
 import junit.framework.TestCase;
 
 public class StreamReader_Case0 extends TestCase {
+
     public void test_streamReader_0() {
-	StringReader strReader = new StringReader(
-		"[{\"id\":123,\"name\":\"jitu\"},{\"id\":234,\"name\":\"wenshao\"}]");
-	JsonStreamReader jsonStreamReader = new JsonStreamReader(strReader);
+        String text = "[{\"id\":123,\"name\":\"jitu\"},{\"name\":\"wenshao\", \"id\":234},[{},true,false,null,1.0,1,\"xx\",[[[]]]],{}]";
+        StringReader strReader = new StringReader(text);
+        JsonStreamReader jsonStreamReader = new JsonStreamReader(strReader);
 
-	Iterator<Event> events = jsonStreamReader.iterator();
-	for (; events.hasNext();) {
-	    Context context = jsonStreamReader.getContext();
+        Iterator<Event> events = jsonStreamReader.iterator();
+        for (; events.hasNext();) {
+            Event event = events.next();
+            Context context = jsonStreamReader.getContext();
 
-	    Event event = events.next();
+            if (context != null) {
+                for (int i = 0; i < context.getLevel(); ++i) {
+                    System.out.print("\t");
+                }
+                if (event != Event.START_OBJECT //
+                    && event != Event.END_OBJECT //
+                    && event != Event.START_ARRAY //
+                    && event != Event.END_ARRAY //
+                    ) {
+                    System.out.print("\t");
+                }
+            }
 
-	    if (context != null) {
-		for (int i = 0; i <= context.getLevel(); ++i) {
-		    System.out.print("\t");
-		}
-	    }
-
-	    System.out.print(event);
-	    System.out.println();
-	}
+            System.out.print(event);
+            System.out.println();
+        }
     }
 }
