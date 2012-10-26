@@ -40,6 +40,7 @@
 
 package javax.json;
 
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -146,7 +147,7 @@ public class JsonObject implements Map<String, Object> {
     }
 
     public String toString() {
-        StringBuilder buf = new StringBuilder();
+        StringWriter buf = new StringWriter();
 
         JsonWriter writer = new JsonWriter(buf);
         writer.writeObject(this);

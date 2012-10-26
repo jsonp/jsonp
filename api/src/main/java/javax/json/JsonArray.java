@@ -40,6 +40,7 @@
 
 package javax.json;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -204,7 +205,7 @@ public class JsonArray implements List<Object> {
     }
 
     public String toString() {
-        StringBuilder buf = new StringBuilder();
+        StringWriter buf = new StringWriter();
 
         JsonWriter writer = new JsonWriter(buf);
         writer.writeObjectInternal(this);

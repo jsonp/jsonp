@@ -41,7 +41,9 @@
 package javax.json;
 
 import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -59,18 +61,23 @@ import java.util.Map;
  * </code>
  * 
  * @author Jitendra Kotamraju
+ * @author wenshao
  */
-public class JsonWriter implements /* Auto */Closeable {
+public class JsonWriter implements /* Auto */Closeable, Flushable {
 
-    private final Appendable writer;
+    private final Writer writer;
+
+    private char[]       buf;
+    private int          pos;
 
     /**
      * Creates a JSON writer which can be used to write a JSON object or array to the specified i/o writer.
      * 
      * @param writer to which JSON object or array is written
      */
-    public JsonWriter(Appendable writer){
+    public JsonWriter(Writer writer){
         this.writer = writer;
+        buf = new char[128];
     }
 
     /**
@@ -132,7 +139,7 @@ public class JsonWriter implements /* Auto */Closeable {
     }
 
     public JsonWriter writeNull() {
-        appendString("null");
+        write("null");
         return this;
     }
 
@@ -141,63 +148,93 @@ public class JsonWriter implements /* Auto */Closeable {
             return writeNull();
         }
 
-        appendChar('"');
+        write('"');
         for (int i = 0; i < value.length(); ++i) {
             char c = value.charAt(i);
             if (c == '"') {
-                appendString("\\\"");
+                write("\\\"");
             } else if (c == '\n') {
-                appendString("\\n");
+                write("\\n");
             } else if (c == '\r') {
-                appendString("\\r");
+                write("\\r");
             } else if (c == '\\') {
-                appendString("\\\\");
+                write("\\\\");
             } else if (c == '\t') {
-                appendString("\\t");
+                write("\\t");
             } else {
-                appendChar(c);
+                write(c);
             }
         }
-        appendChar('"');
+        write('"');
 
         return this;
     }
 
     public JsonWriter writeBoolean(boolean value) {
-        appendString(value ? "true" : "false"); // value ? 1 : 0
+        write(value ? "true" : "false"); // value ? 1 : 0
         return this;
     }
 
-    public JsonWriter writeInt(int value) {
-        appendString(Integer.toString(value));
+    public JsonWriter writeInt(int i) {
+        if (i == Integer.MIN_VALUE) {
+            write("-2147483648");
+            return this;
+        }
+
+        int size = (i < 0) ? stringSize(-i) + 1 : stringSize(i);
+
+        int newcount = pos + size;
+        if (newcount > buf.length) {
+            flush();
+        }
+
+        getChars(i, newcount, buf);
+
+        pos = newcount;
+
         return this;
     }
 
-    public JsonWriter writeLong(long value) {
-        appendString(Long.toString(value));
+    public JsonWriter writeLong(long i) {
+        if (i == Long.MIN_VALUE) {
+            write("-9223372036854775808");
+            return this;
+        }
+
+        int size = (i < 0) ? stringSize(-i) + 1 : stringSize(i);
+
+        int newcount = pos + size;
+        if (newcount > buf.length) {
+            flush();
+        }
+
+        getChars(i, newcount, buf);
+
+        pos = newcount;
+
         return this;
     }
 
     public JsonWriter writeFloat(float value) {
         if (Float.isNaN(value) || Float.isInfinite(value)) {
-            appendString("null");
+            write("null");
         } else {
-            appendString(Float.toString(value));
+            write(Float.toString(value));
         }
         return this;
     }
 
     public JsonWriter writeDouble(double value) {
         if (Double.isNaN(value) || Double.isInfinite(value)) {
-            appendString("null");
+            write("null");
         } else {
-            appendString(Double.toString(value));
+            write(Double.toString(value));
         }
         return this;
     }
 
     public JsonWriter writeBigDecimal(BigDecimal value) {
-        appendString(value.toString());
+        write(value.toString());
         return this;
     }
 
@@ -269,7 +306,7 @@ public class JsonWriter implements /* Auto */Closeable {
 
     public JsonWriter writeKey(Object key) {
         if (key == null) {
-            appendString("\"null\"");
+            write("\"null\"");
         } else if (key.getClass() == String.class) {
             writeString((String) key);
         } else {
@@ -284,51 +321,74 @@ public class JsonWriter implements /* Auto */Closeable {
     }
 
     public JsonWriter writeBeginArray() {
-        appendChar('[');
+        write('[');
         return this;
     }
 
     public JsonWriter writeEndArray() {
-        appendChar(']');
+        write(']');
         return this;
     }
 
     public JsonWriter writeArraySeperator() {
-        appendChar(',');
+        write(',');
         return this;
     }
 
     public JsonWriter writeBeginObject() {
-        appendChar('{');
+        write('{');
         return this;
     }
 
     public JsonWriter writeEndObject() {
-        appendChar('}');
+        write('}');
         return this;
     }
 
     public JsonWriter writeObjectPropertySeperator() {
-        appendChar(',');
+        write(',');
         return this;
     }
 
     public JsonWriter writeNameValueSeperator() {
-        appendChar(':');
+        write(':');
         return this;
     }
 
-    protected void appendString(String text) {
+    protected void write(String text) {
         try {
-            writer.append(text);
+            if (text.length() > buf.length) {
+                if (pos > 0) {
+                    flush();
+                }
+                writer.write(text);
+            } else {
+                if (text.length() + pos > buf.length) {
+                    int rest = buf.length - pos;
+                    text.getChars(0, rest, buf, pos);
+                    writer.write(buf, 0, pos);
+                    pos = 0;
+                    
+                    text.getChars(rest, text.length(), buf, 0);
+                    pos = text.length() - rest;
+                } else {
+                    text.getChars(0, text.length(), buf, buf.length);
+                }
+            }
         } catch (IOException e) {
             throw new JsonException(e);
         }
     }
 
-    protected void appendChar(char ch) {
+    protected void write(char ch) {
+        if (pos < buf.length) {
+            buf[pos++] = ch;
+            return;
+        }
+
         try {
-            writer.append(ch);
+            writer.write(buf);
+            pos = 0;
         } catch (IOException e) {
             throw new JsonException(e);
         }
@@ -340,7 +400,132 @@ public class JsonWriter implements /* Auto */Closeable {
      */
     @Override
     public void close() {
-
+        flush();
     }
 
+    @Override
+    public void flush() {
+        if (pos == 0) {
+            return;
+        }
+
+        try {
+            writer.write(buf, 0, pos);
+            pos = 0;
+        } catch (IOException e) {
+            throw new JsonException(e);
+        }
+    }
+
+    static int stringSize(int x) {
+        for (int i = 0;; i++)
+            if (x <= sizeTable[i]) return i + 1;
+    }
+
+    static int stringSize(long x) {
+        long p = 10;
+        for (int i = 1; i < 19; i++) {
+            if (x < p) return i;
+            p = 10 * p;
+        }
+        return 19;
+    }
+
+    final static int[]  sizeTable = { 9, 99, 999, 9999, 99999, 999999, 9999999, 99999999, 999999999, Integer.MAX_VALUE };
+
+    final static char[] digits    = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+            'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+
+    final static char[] DigitTens = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1', '1', '1', '1', '1',
+            '1', '1', '1', '1', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '3', '3', '3', '3', '3', '3', '3',
+            '3', '3', '3', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '5', '5', '5', '5', '5', '5', '5', '5',
+            '5', '5', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '7', '7', '7', '7', '7', '7', '7', '7', '7',
+            '7', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '9', '9', '9', '9', '9', '9', '9', '9', '9', '9', };
+
+    final static char[] DigitOnes = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5',
+            '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6',
+            '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8',
+            '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
+
+    static void getChars(int i, int index, char[] buf) {
+        int q, r;
+        int charPos = index;
+        char sign = 0;
+
+        if (i < 0) {
+            sign = '-';
+            i = -i;
+        }
+
+        // Generate two digits per iteration
+        while (i >= 65536) {
+            q = i / 100;
+            // really: r = i - (q * 100);
+            r = i - ((q << 6) + (q << 5) + (q << 2));
+            i = q;
+            buf[--charPos] = DigitOnes[r];
+            buf[--charPos] = DigitTens[r];
+        }
+
+        // Fall thru to fast mode for smaller numbers
+        // assert(i <= 65536, i);
+        for (;;) {
+            q = (i * 52429) >>> (16 + 3);
+            r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
+            buf[--charPos] = digits[r];
+            i = q;
+            if (i == 0) break;
+        }
+        if (sign != 0) {
+            buf[--charPos] = sign;
+        }
+    }
+
+    static void getChars(long i, int index, char[] buf) {
+        long q;
+        int r;
+        int charPos = index;
+        char sign = 0;
+
+        if (i < 0) {
+            sign = '-';
+            i = -i;
+        }
+
+        // Get 2 digits/iteration using longs until quotient fits into an int
+        while (i > Integer.MAX_VALUE) {
+            q = i / 100;
+            // really: r = i - (q * 100);
+            r = (int) (i - ((q << 6) + (q << 5) + (q << 2)));
+            i = q;
+            buf[--charPos] = DigitOnes[r];
+            buf[--charPos] = DigitTens[r];
+        }
+
+        // Get 2 digits/iteration using ints
+        int q2;
+        int i2 = (int) i;
+        while (i2 >= 65536) {
+            q2 = i2 / 100;
+            // really: r = i2 - (q * 100);
+            r = i2 - ((q2 << 6) + (q2 << 5) + (q2 << 2));
+            i2 = q2;
+            buf[--charPos] = DigitOnes[r];
+            buf[--charPos] = DigitTens[r];
+        }
+
+        // Fall thru to fast mode for smaller numbers
+        // assert(i2 <= 65536, i2);
+        for (;;) {
+            q2 = (i2 * 52429) >>> (16 + 3);
+            r = i2 - ((q2 << 3) + (q2 << 1)); // r = i2-(q2*10) ...
+            buf[--charPos] = digits[r];
+            i2 = q2;
+            if (i2 == 0) break;
+        }
+        if (sign != 0) {
+            buf[--charPos] = sign;
+        }
+    }
 }
