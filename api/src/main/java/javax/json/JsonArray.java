@@ -63,7 +63,7 @@ public class JsonArray implements List<Object> {
 
     @Override
     public int size() {
-	return 0;
+	return items.size();
     }
 
     @Override
