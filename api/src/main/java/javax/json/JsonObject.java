@@ -40,155 +40,113 @@
 
 package javax.json;
 
-import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * 
  * @author Jitendra Kotamraju
+ * @author wenshao
  */
 public class JsonObject implements Map<String, Object> {
-    public <T>T get(String key, Class<T> clazz) {
-        return null;
+    private final Map<String, Object> map;
+
+    public JsonObject() {
+	map = new LinkedHashMap<String, Object>();
     }
 
-    public JsonValueType getValueType(String key) {
-        return null;
+    public <T> T get(String key, Class<T> clazz) {
+	return null;
     }
 
     @Override
     public int size() {
-        return 0;
+	return map.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return false;
+	return map.isEmpty();
     }
 
     @Override
-    public boolean containsKey(Object o) {
-        return false;
+    public boolean containsKey(Object name) {
+	return map.containsKey(name);
     }
 
     @Override
-    public boolean containsValue(Object o) {
-        return false;
+    public boolean containsValue(Object value) {
+	return map.containsValue(value);
     }
 
     @Override
     public Object get(Object o) {
-        return null;
+	return map.get(o);
     }
 
     @Override
-    public Object put(String s, Object o) {
-        return null;
+    public Object put(String key, Object value) {
+	return map.put(key, value);
     }
 
     @Override
-    public Object remove(Object o) {
-        return null;
+    public Object remove(Object name) {
+	return map.remove(name);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public void putAll(Map<? extends String, ? extends Object> map) {
+    public void putAll(Map map) {
+	map.putAll(map);
     }
 
     @Override
     public void clear() {
+	map.clear();
     }
 
     @Override
     public Set<String> keySet() {
-        return null;
+	return map.keySet();
     }
 
     @Override
     public Collection<Object> values() {
-        return null;
+	return map.values();
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-        return null;
+	return map.entrySet();
     }
 
-    private void test() {
-        JsonObject address = new JsonObject();
-        address.put("streetAddress", "21 2nd Street");
-        address.put("city", "New York");
-        address.put("state", "NY");
-        address.put("postalCode", "10021");
+    @Override
+    public int hashCode() {
+	return map.hashCode();
+    }
 
-        JsonObject home = new JsonObject();
-        home.put("type", "home");
-        home.put("number", "212 555-1234");
-        JsonObject fax = new JsonObject();
-        fax.put("type", "fax");
-        fax.put("number", "646 555-4567");
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (obj == null)
+	    return false;
+	if (getClass() != obj.getClass())
+	    return false;
 
-        JsonArray phoneNumber = new JsonArray();
-        phoneNumber.add(home);
-        phoneNumber.add(fax);
+	JsonObject other = (JsonObject) obj;
+	return this.map.equals(other.map);
+    }
 
-        JsonObject person = new JsonObject();
-        person.put("firstName", "John");
-        person.put("lastName", "Smith");
-        person.put("age", 25);
-        person.put("address", address);
-        person.put("phoneNumber", phoneNumber);
-
-        String firstName = person.get("firstName", String.class);
-
-        for(String key : person.keySet()) {
-            JsonValueType valueType = getValueType(key);
-            switch (valueType) {
-                case ARRAY:
-                    JsonArray array = person.get(key, JsonArray.class);
-                    break;
-                case OBJECT:
-                    JsonObject object = person.get(key, JsonObject.class);
-                    break;
-                case STRING:
-                    String string = person.get(key, String.class);
-                    break;
-                case NUMBER:
-                    BigDecimal number = person.get(key, BigDecimal.class);
-                    break;
-                case TRUE:
-                    // value would be true
-                    break;
-                case FALSE:
-                    // value would be false
-                    break;
-                case NULL:
-                    // value would be null
-                    break;
-            }
-        }
-
-        for(Entry<String, Object> entry : person.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            if (value == null) {
-                // JSON null
-            } else if (value instanceof Boolean) {
-                // JSON true or false
-            } else if (value instanceof String) {
-                String string = (String)value;
-            } else if (value instanceof BigDecimal) {
-                BigDecimal number = (BigDecimal)value;
-            } else if (value instanceof JsonArray) {
-                JsonArray array = (JsonArray)value;
-            } else if (value instanceof JsonObject) {
-                JsonObject object = (JsonObject)value;
-            } else {
-                throw new IllegalArgumentException();
-            }
-        }
-
+    public String toString() {
+	StringBuilder buf = new StringBuilder();
+	
+	JsonWriter writer = new JsonWriter(buf);
+	writer.writeObject(this);
+	writer.close();
+	
+	return buf.toString();
     }
 }
