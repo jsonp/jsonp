@@ -45,10 +45,8 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
-import javax.json.JsonArray;
 import javax.json.JsonConfiguration;
 import javax.json.JsonException;
-import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 
@@ -119,39 +117,6 @@ public abstract class JsonProvider {
      * @param config configuration of the parser
      */
     public abstract JsonParser createParser(Reader reader, JsonConfiguration config);
-
-
-    /**
-     * Creates a JSON parser from the specified JSON array.
-     *
-     * @param array JSON array
-     */
-    public abstract JsonParser createParser(JsonArray array);
-
-    /**
-     * Creates a JSON parser from the specified JSON array. The created
-     * parser is configured with the specified configuration.
-     *
-     * @param array JSON array
-     * @param config configuration of the parser
-     */
-    public abstract JsonParser createParser(JsonArray array, JsonConfiguration config);
-
-    /**
-     * Creates a JSON parser from the specified JSON object.
-     *
-     * @param object JSON object
-     */
-    public abstract JsonParser createParser(JsonObject object);
-
-    /**
-     * Creates a JSON parser from the specified JSON object. The created
-     * parser is configured with the specified configuration.
-     *
-     * @param object JSON object
-     * @param config configuration of the parser
-     */
-    public abstract JsonParser createParser(JsonObject object, JsonConfiguration config);
 
     /**
      * Creates a JSON generator which can be used to write JSON text to the
