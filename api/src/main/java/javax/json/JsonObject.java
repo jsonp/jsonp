@@ -60,10 +60,6 @@ public class JsonObject extends JsonStructure implements Map<String, Object> {
 	map = new LinkedHashMap<String, Object>();
     }
 
-    public <T> T get(String key, Class<T> clazz) {
-	return null;
-    }
-
     @Override
     public int size() {
 	return map.size();

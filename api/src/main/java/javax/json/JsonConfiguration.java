@@ -3,6 +3,8 @@ package javax.json;
 public class JsonConfiguration {
     private String dateFormat;
 
+    private boolean prettyFormat = false;
+
     public String getDateFormat() {
 	return dateFormat;
     }
@@ -11,4 +13,11 @@ public class JsonConfiguration {
 	this.dateFormat = dateFormat;
     }
 
+    public boolean isPrettyFormat() {
+	return prettyFormat;
+    }
+
+    public void setPrettyFormat(boolean prettyFormat) {
+	this.prettyFormat = prettyFormat;
+    }
 }

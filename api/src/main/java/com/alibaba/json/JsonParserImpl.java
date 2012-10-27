@@ -11,7 +11,6 @@ import javax.json.JsonException;
 import javax.json.JsonObject;
 import javax.json.stream.JsonParser;
 
-import com.alibaba.json.JsonTokenizer.Token;
 
 public class JsonParserImpl implements JsonParser {
 
@@ -41,13 +40,13 @@ public class JsonParserImpl implements JsonParser {
     }
 
     public Object read() {
-	if (tokenizer.token() == Token.LBRACE) {
+	if (tokenizer.token() == JsonToken.LBRACE) {
 	    return readJsonObject();
 	}
 
-	Token token = tokenizer.token();
+	JsonToken token = tokenizer.token();
 
-	if (token == Token.INT) {
+	if (token == JsonToken.INT) {
 	    Object value;
 
 	    if (tokenizer.longValue() >= Integer.MIN_VALUE
@@ -61,33 +60,33 @@ public class JsonParserImpl implements JsonParser {
 	    return value;
 	}
 
-	if (token == Token.DOUBLE) {
+	if (token == JsonToken.DOUBLE) {
 	    Object value = tokenizer.doubleValue();
 	    tokenizer.nextToken();
 	    return value;
 	}
 
-	if (token == Token.STRING) {
+	if (token == JsonToken.STRING) {
 	    Object value = tokenizer.stringValue();
 	    tokenizer.nextToken();
 	    return value;
 	}
 
-	if (token == Token.LBRACKET) {
+	if (token == JsonToken.LBRACKET) {
 	    return readJsonArray();
 	}
 
-	if (token == Token.TRUE) {
+	if (token == JsonToken.TRUE) {
 	    tokenizer.nextToken();
 	    return true;
 	}
 
-	if (token == Token.FALSE) {
+	if (token == JsonToken.FALSE) {
 	    tokenizer.nextToken();
 	    return false;
 	}
 
-	if (token == Token.NULL) {
+	if (token == JsonToken.NULL) {
 	    tokenizer.nextToken();
 	    return null;
 	}
@@ -96,17 +95,17 @@ public class JsonParserImpl implements JsonParser {
     }
 
     public JsonArray readJsonArray() {
-	tokenizer.accept(Token.LBRACKET);
+	tokenizer.accept(JsonToken.LBRACKET);
 	JsonArray array = new JsonArray();
 
 	for (;;) {
-	    Token token = tokenizer.token();
+	    JsonToken token = tokenizer.token();
 
-	    if (token == Token.RBRACKET) {
+	    if (token == JsonToken.RBRACKET) {
 		break;
 	    }
 
-	    if (token == Token.COMMA) {
+	    if (token == JsonToken.COMMA) {
 		tokenizer.nextToken();
 		continue;
 	    }
@@ -115,7 +114,7 @@ public class JsonParserImpl implements JsonParser {
 	    array.add(item);
 	}
 
-	tokenizer.accept(Token.RBRACKET);
+	tokenizer.accept(JsonToken.RBRACKET);
 	return array;
     }
 
@@ -131,24 +130,24 @@ public class JsonParserImpl implements JsonParser {
      *             if this method or close method is already called
      */
     public JsonObject readJsonObject() {
-	tokenizer.accept(Token.LBRACE);
+	tokenizer.accept(JsonToken.LBRACE);
 	JsonObject map = new JsonObject();
 
 	for (;;) {
-	    Token token = tokenizer.token();
+	    JsonToken token = tokenizer.token();
 
-	    if (token == Token.RBRACE) {
+	    if (token == JsonToken.RBRACE) {
 		break;
 	    }
 
-	    if (token == Token.COMMA) {
+	    if (token == JsonToken.COMMA) {
 		tokenizer.nextToken();
 		continue;
 	    }
 
 	    String key;
 	    {
-		if (token != Token.STRING) {
+		if (token != JsonToken.STRING) {
 		    throw new IllegalArgumentException("illegal json token : "
 			    + token);
 		}
@@ -156,14 +155,14 @@ public class JsonParserImpl implements JsonParser {
 		tokenizer.nextToken();
 	    }
 
-	    tokenizer.accept(Token.COLON);
+	    tokenizer.accept(JsonToken.COLON);
 
 	    Object value = read();
 
 	    map.put(key, value);
 	}
 
-	tokenizer.accept(Token.RBRACE);
+	tokenizer.accept(JsonToken.RBRACE);
 	return map;
     }
 
@@ -275,7 +274,7 @@ public class JsonParserImpl implements JsonParser {
 
 	@Override
 	public boolean hasNext() {
-	    return tokenizer.token() != Token.EOF;
+	    return tokenizer.token() != JsonToken.EOF;
 	}
 
 	@Override
@@ -283,17 +282,17 @@ public class JsonParserImpl implements JsonParser {
 	    if (context != null
 		    && (context.event == Event.END_OBJECT || context.event == Event.END_ARRAY)) {
 		context = context.parent;
-		if (tokenizer.token() == Token.COMMA) {
+		if (tokenizer.token() == JsonToken.COMMA) {
 		    tokenizer.nextToken();
 		}
 	    }
 
-	    Token token = tokenizer.token();
+	    JsonToken token = tokenizer.token();
 
 	    switch (token) {
 	    case LBRACE:
 		Context objSubContext = new Context(context,
-			StructureType.Object, Event.START_OBJECT);
+			JsonStructureType.Object, Event.START_OBJECT);
 		tokenizer.nextToken();
 		context = objSubContext;
 		return Event.START_OBJECT;
@@ -302,7 +301,7 @@ public class JsonParserImpl implements JsonParser {
 		return context.event = Event.END_OBJECT;
 	    case LBRACKET:
 		Context subArrayContext = new Context(context,
-			StructureType.Array, Event.START_ARRAY);
+			JsonStructureType.Array, Event.START_ARRAY);
 		tokenizer.nextToken();
 		context = subArrayContext;
 		return Event.START_ARRAY;
@@ -313,7 +312,7 @@ public class JsonParserImpl implements JsonParser {
 		if (context != null) {
 		    context.value = true;
 		    tokenizer.nextToken();
-		    if (tokenizer.token() == Token.COMMA) {
+		    if (tokenizer.token() == JsonToken.COMMA) {
 			tokenizer.nextToken();
 		    }
 		} else {
@@ -324,7 +323,7 @@ public class JsonParserImpl implements JsonParser {
 		if (context != null) {
 		    context.value = false;
 		    tokenizer.nextToken();
-		    if (tokenizer.token() == Token.COMMA) {
+		    if (tokenizer.token() == JsonToken.COMMA) {
 			tokenizer.nextToken();
 		    }
 		} else {
@@ -335,7 +334,7 @@ public class JsonParserImpl implements JsonParser {
 		if (context != null) {
 		    context.value = null;
 		    tokenizer.nextToken();
-		    if (tokenizer.token() == Token.COMMA) {
+		    if (tokenizer.token() == JsonToken.COMMA) {
 			tokenizer.nextToken();
 		    }
 		} else {
@@ -344,7 +343,7 @@ public class JsonParserImpl implements JsonParser {
 		return context.event = Event.VALUE_NULL;
 	    case STRING:
 		if (context != null) {
-		    if (context.structureType == StructureType.Object) {
+		    if (context.structureType == JsonStructureType.Object) {
 			switch (context.event) {
 			case START_OBJECT:
 			case VALUE_FALSE:
@@ -355,12 +354,12 @@ public class JsonParserImpl implements JsonParser {
 			    tokenizer.nextToken();
 			    context.event = Event.KEY_NAME;
 			    context.value = tokenizer.stringValue();
-			    tokenizer.accept(Token.COLON);
+			    tokenizer.accept(JsonToken.COLON);
 			    return context.event;
 			case KEY_NAME:
 			    context.value = tokenizer.stringValue();
 			    tokenizer.nextToken();
-			    if (tokenizer.token() == Token.COMMA) {
+			    if (tokenizer.token() == JsonToken.COMMA) {
 				tokenizer.nextToken();
 			    }
 			    return context.event = Event.VALUE_STRING;
@@ -370,7 +369,7 @@ public class JsonParserImpl implements JsonParser {
 		    } else {
 			context.value = tokenizer.stringValue();
 			tokenizer.nextToken();
-			if (tokenizer.token() == Token.COMMA) {
+			if (tokenizer.token() == JsonToken.COMMA) {
 			    tokenizer.nextToken();
 			}
 			return context.event = Event.VALUE_STRING;
@@ -380,7 +379,7 @@ public class JsonParserImpl implements JsonParser {
 		if (context != null) {
 		    context.value = tokenizer.longValue();
 		    tokenizer.nextToken();
-		    if (tokenizer.token() == Token.COMMA) {
+		    if (tokenizer.token() == JsonToken.COMMA) {
 			tokenizer.nextToken();
 		    }
 		} else {
@@ -391,7 +390,7 @@ public class JsonParserImpl implements JsonParser {
 		if (context != null) {
 		    context.value = tokenizer.doubleValue();
 		    tokenizer.nextToken();
-		    if (tokenizer.token() == Token.COMMA) {
+		    if (tokenizer.token() == JsonToken.COMMA) {
 			tokenizer.nextToken();
 		    }
 		} else {
@@ -411,15 +410,14 @@ public class JsonParserImpl implements JsonParser {
 	}
     }
 
-    public static class Context {
-
+    private static class Context {
 	final Context parent;
-	final StructureType structureType;
+	final JsonStructureType structureType;
 	Event event;
 	Object value;
 	int depth;
 
-	public Context(Context parent, StructureType structureType, Event event) {
+	public Context(Context parent, JsonStructureType structureType, Event event) {
 	    this.parent = parent;
 	    if (parent != null) {
 		this.depth = parent.depth + 1;
@@ -427,13 +425,5 @@ public class JsonParserImpl implements JsonParser {
 	    this.structureType = structureType;
 	    this.event = event;
 	}
-
-	public int getLevel() {
-	    return depth;
-	}
-    }
-
-    public enum StructureType {
-	Object, Array
     }
 }

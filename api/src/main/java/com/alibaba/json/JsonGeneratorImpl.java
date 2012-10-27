@@ -26,8 +26,9 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 
     private boolean closed = false;
 
-
     private final JsonConfiguration config;
+
+    private Context context;
 
     /**
      * Creates a JSON writer which can be used to write a JSON object or array
@@ -62,22 +63,16 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 	    return this.writeNull();
 	}
 
-	writeBeginObject();
+	beginObject();
 
-	int index = 0;
 	for (Map.Entry<?, ?> entry : jsonObject.entrySet()) {
-	    if (index != 0) {
-		writeKeyValueSeperator();
-	    }
-
-	    Object key = entry.getKey();
+	    String key = (String) entry.getKey();
 	    Object value = entry.getValue();
 
 	    writeKeyValue(key, value);
-	    index++;
 	}
 
-	writeEndObject();
+	endObject();
 
 	return this;
     }
@@ -98,31 +93,36 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 	    return writeNull();
 	}
 
-	writeBeginArray();
+	beginArray();
 	for (int i = 0, size = jsonArray.size(); i < size; ++i) {
 	    if (i != 0) {
-		writeArraySeperator();
+		write(',');
 	    }
 
 	    Object item = jsonArray.get(i);
 	    writeObjectInternal(item);
 	}
-	writeEndArray();
+	endArray();
 
 	return this;
     }
 
     public JsonGeneratorImpl writeNull() {
+	checkValue();
 	write("null");
 	return this;
     }
 
     public JsonGeneratorImpl writeString(String value) {
-	return writeString(value, true);
+	return writeString(value, false, true);
     }
 
-    public JsonGeneratorImpl writeString(String value, boolean checkSpecial) {
+    public JsonGeneratorImpl writeString(String value, boolean isKey,
+	    boolean checkSpecial) {
 	closeCheck();
+	if (!isKey) {
+	    checkValue();
+	}
 
 	if (!checkSpecial) {
 	    write('"');
@@ -184,12 +184,14 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
     }
 
     public JsonGeneratorImpl writeBoolean(boolean value) {
+	checkValue();
 	write(value ? "true" : "false"); // value ? 1 : 0
 	return this;
     }
 
     public JsonGeneratorImpl writeInt(int i) {
 	closeCheck();
+	checkValue();
 
 	if (i == Integer.MIN_VALUE) {
 	    write("-2147483648");
@@ -212,6 +214,8 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
     }
 
     public JsonGeneratorImpl writeLong(long i) {
+	checkValue();
+
 	if (i == Long.MIN_VALUE) {
 	    write("-9223372036854775808");
 	    return this;
@@ -232,6 +236,8 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
     }
 
     public JsonGeneratorImpl writeFloat(float value) {
+	checkValue();
+
 	if (Float.isNaN(value) || Float.isInfinite(value)) {
 	    return writeNull();
 	} else {
@@ -241,6 +247,8 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
     }
 
     public JsonGeneratorImpl writeDouble(double value) {
+	checkValue();
+
 	if (Double.isNaN(value) || Double.isInfinite(value)) {
 	    return writeNull();
 	} else {
@@ -250,6 +258,12 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
     }
 
     public JsonGeneratorImpl writeBigDecimal(BigDecimal value) {
+	if (value == null) {
+	    return writeNull();
+	}
+
+	checkValue();
+
 	write(value.toString());
 	return this;
     }
@@ -258,7 +272,9 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 	if (value == null) {
 	    return writeNull();
 	}
-	
+
+	checkValue();
+
 	DateFormat dateFormat = new SimpleDateFormat(config.getDateFormat());
 
 	String formated = dateFormat.format(value);
@@ -267,6 +283,10 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
     }
 
     public JsonGeneratorImpl writeJavaBean(Object o) {
+	if (o == null) {
+	    return writeNull();
+	}
+
 	throw new JsonException("not support type : " + o.getClass());
     }
 
@@ -324,19 +344,29 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 	return writeJavaBean(o);
     }
 
-    public JsonGeneratorImpl writeKeyValue(Object key, Object value) {
+    public JsonGeneratorImpl writeKeyValue(String key, Object value) {
 	writeKey(key);
-	writeNameValueSeperator();
 	writeObjectInternal(value);
 
 	return this;
     }
 
-    public JsonGeneratorImpl writeKey(Object key) {
+    public JsonGeneratorImpl writeKey(String key) {
+	if (context == null
+		|| context.structureType != JsonStructureType.Object
+		|| context.named) {
+	    throw new JsonException("illegal stat. ");
+	}
+
+	if (context.itemsCount > 0) {
+	    write(',');
+	}
+	context.named = true;
+
 	if (key == null) {
 	    write("\"null\"");
 	} else if (key.getClass() == String.class) {
-	    writeString((String) key);
+	    writeString((String) key, true, true);
 	} else {
 	    writeKeyNotString(key);
 	}
@@ -348,39 +378,48 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 	throw new JsonException("not support key type : " + key.getClass());
     }
 
-    public JsonGeneratorImpl writeBeginArray() {
+    public JsonGeneratorImpl beginArray() {
+	checkValue();
+	context = new Context(context, JsonStructureType.Array);
 	write('[');
 	return this;
     }
 
-    public JsonGeneratorImpl writeEndArray() {
+    public JsonGeneratorImpl endArray() {
 	write(']');
+	context = context.parent;
 	return this;
     }
 
-    public JsonGeneratorImpl writeArraySeperator() {
-	write(',');
-	return this;
-    }
-
-    public JsonGeneratorImpl writeBeginObject() {
+    public JsonGeneratorImpl beginObject() {
+	checkValue();
+	context = new Context(context, JsonStructureType.Object);
 	write('{');
 	return this;
     }
 
-    public JsonGeneratorImpl writeEndObject() {
+    public JsonGeneratorImpl endObject() {
 	write('}');
+	context = context.parent;
+
 	return this;
     }
 
-    public JsonGeneratorImpl writeKeyValueSeperator() {
-	write(',');
-	return this;
-    }
-
-    public JsonGeneratorImpl writeNameValueSeperator() {
-	write(':');
-	return this;
+    private void checkValue() {
+	if (context != null) {
+	    if (context.structureType == JsonStructureType.Object) {
+		if (!context.named) {
+		    throw new JsonException("require name");
+		}
+		context.named = false;
+		write(':');
+	    } else {
+		if (context.itemsCount > 0) {
+		    write(',');
+		}
+	    }
+	    context.itemsCount++;
+	}
     }
 
     protected void write(String text) {
@@ -587,4 +626,15 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 	}
     }
 
+    private static class Context {
+	final Context parent;
+	final JsonStructureType structureType;
+	int itemsCount;
+	boolean named = false;
+
+	Context(Context parent, JsonStructureType structureType) {
+	    this.parent = parent;
+	    this.structureType = structureType;
+	}
+    }
 }

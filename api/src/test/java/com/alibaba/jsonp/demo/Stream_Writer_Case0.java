@@ -16,11 +16,10 @@ public class Stream_Writer_Case0 extends TestCase {
         JsonGenerator writer = JsonProvider.provider().createGenerator(buf);
 
         writer //
-        .writeBeginObject() //
+        .beginObject() //
         .writeKeyValue("id", 123) //
-        .writeKeyValueSeperator() //
         .writeKeyValue("name", "jitu") //
-        .writeEndObject() //
+        .endObject() //
         .close();
         
         Assert.assertEquals("{\"id\":123,\"name\":\"jitu\"}", buf.toString());

@@ -61,10 +61,6 @@ public class JsonArray extends JsonStructure implements List<Object> {
 	items = new ArrayList<Object>();
     }
 
-    public <T> T get(int index, Class<T> clazz) {
-	return null;
-    }
-
     @Override
     public int size() {
 	return items.size();

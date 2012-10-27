@@ -15,7 +15,7 @@ public class JsonTokenizer implements Closeable {
     private final char[] buf;
     private int          bufLen;
     private int          index;
-    private Token        token;
+    private JsonToken        token;
     private char         ch;
 
     private String       stringValue;
@@ -38,7 +38,7 @@ public class JsonTokenizer implements Closeable {
         nextToken();
     }
 
-    public void accept(Token token) {
+    public void accept(JsonToken token) {
         if (this.token == token) {
             nextToken();
             return;
@@ -47,7 +47,7 @@ public class JsonTokenizer implements Closeable {
         throw new IllegalArgumentException("illegal token : " + this.token + ", expect " + token);
     }
 
-    public Token token() {
+    public JsonToken token() {
         return this.token;
     }
 
@@ -78,7 +78,7 @@ public class JsonTokenizer implements Closeable {
 
     public final void nextToken() {
         if (index == Integer.MIN_VALUE) {
-            token = Token.EOF;
+            token = JsonToken.EOF;
             return;
         }
 
@@ -89,7 +89,7 @@ public class JsonTokenizer implements Closeable {
             }
 
             if (index == -1) {
-                token = Token.EOF;
+                token = JsonToken.EOF;
                 return;
             }
 
@@ -98,27 +98,27 @@ public class JsonTokenizer implements Closeable {
 
         switch (ch) {
             case '{':
-                token = Token.LBRACE;
+                token = JsonToken.LBRACE;
                 nextChar();
                 break;
             case '}':
-                token = Token.RBRACE;
+                token = JsonToken.RBRACE;
                 nextChar();
                 break;
             case '[':
-                token = Token.LBRACKET;
+                token = JsonToken.LBRACKET;
                 nextChar();
                 break;
             case ']':
-                token = Token.RBRACKET;
+                token = JsonToken.RBRACKET;
                 nextChar();
                 break;
             case ',':
-                token = Token.COMMA;
+                token = JsonToken.COMMA;
                 nextChar();
                 break;
             case ':':
-                token = Token.COLON;
+                token = JsonToken.COLON;
                 nextChar();
                 break;
             case '"':
@@ -142,7 +142,7 @@ public class JsonTokenizer implements Closeable {
                             nextChar();
                             if (ch == 'l') {
                                 nextChar();
-                                token = Token.NULL;
+                                token = JsonToken.NULL;
                                 return;
                             }
                         }
@@ -157,7 +157,7 @@ public class JsonTokenizer implements Closeable {
                             nextChar();
                             if (ch == 'e') {
                                 nextChar();
-                                token = Token.TRUE;
+                                token = JsonToken.TRUE;
                                 return;
                             }
                         }
@@ -174,7 +174,7 @@ public class JsonTokenizer implements Closeable {
                                 nextChar();
                                 if (ch == 'e') {
                                     nextChar();
-                                    token = Token.FALSE;
+                                    token = JsonToken.FALSE;
                                     return;
                                 }
                             }
@@ -250,10 +250,10 @@ public class JsonTokenizer implements Closeable {
 
         if (dotCount == 0) {
             this.longValue = Long.parseLong(digitBuf.toString());
-            token = Token.INT;
+            token = JsonToken.INT;
         } else {
             this.doubleValue = new BigDecimal(digitBuf.toString());
-            token = Token.DOUBLE;
+            token = JsonToken.DOUBLE;
         }
     }
 
@@ -307,7 +307,7 @@ public class JsonTokenizer implements Closeable {
             nextChar();
         }
         stringValue = strBuf.toString();
-        token = Token.STRING;
+        token = JsonToken.STRING;
     }
     
     static int hex(char ch) {
@@ -324,34 +324,5 @@ public class JsonTokenizer implements Closeable {
         }
         
         throw new IllegalArgumentException("illegal hex : " + ch);
-    }
-
-    public enum Token {
-        INT, //
-        DOUBLE, //
-        STRING, //
-        TRUE, //
-        FALSE, //
-        NULL, //
-        EOF, //
-
-        LBRACE("{"), //
-        RBRACE("}"), //
-        LBRACKET("["), //
-        RBRACKET("]"), //
-        COMMA(","), //
-        COLON(":"),
-
-        ;
-
-        public final String name;
-
-        Token(){
-            this(null);
-        }
-
-        Token(String name){
-            this.name = name;
-        }
     }
 }
