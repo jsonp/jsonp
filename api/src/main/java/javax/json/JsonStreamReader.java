@@ -3,7 +3,9 @@ package javax.json;
 import java.io.Reader;
 import java.util.Iterator;
 
-import javax.json.JsonTokenizer.Token;
+import com.alibaba.json.JsonTokenizer;
+import com.alibaba.json.JsonTokenizer.Token;
+
 
 public class JsonStreamReader {
 

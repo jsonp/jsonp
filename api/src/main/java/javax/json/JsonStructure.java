@@ -44,6 +44,22 @@ public class JsonStructure {
         throw new ClassCastException("can not cast " + value.getClass() + " to boolean");
     }
     
+    static short toShortValue(Object value, short defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        }
+
+        if (value instanceof Number) {
+            return ((Number) value).shortValue();
+        }
+
+        if (value instanceof String) {
+            return Short.parseShort((String) value);
+        }
+
+        throw new ClassCastException("can not cast " + value.getClass() + " to short");
+    }
+    
     static int toIntValue(Object value, int defaultValue) {
         if (value == null) {
             return defaultValue;

@@ -40,6 +40,7 @@
 
 package javax.json;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -55,158 +56,171 @@ public class JsonObject extends JsonStructure implements Map<String, Object> {
 
     private final Map<String, Object> map;
 
-    public JsonObject(){
-        map = new LinkedHashMap<String, Object>();
+    public JsonObject() {
+	map = new LinkedHashMap<String, Object>();
     }
 
     public <T> T get(String key, Class<T> clazz) {
-        return null;
+	return null;
     }
 
     @Override
     public int size() {
-        return map.size();
+	return map.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return map.isEmpty();
+	return map.isEmpty();
     }
 
     @Override
     public boolean containsKey(Object name) {
-        return map.containsKey(name);
+	return map.containsKey(name);
     }
 
     @Override
     public boolean containsValue(Object value) {
-        return map.containsValue(value);
+	return map.containsValue(value);
     }
 
     @Override
     public Object get(Object o) {
-        return map.get(o);
+	return map.get(o);
     }
 
     public String getString(String key) {
-        Object value = map.get(key);
-        if (value == null) {
-            return null;
-        }
+	Object value = map.get(key);
+	if (value == null) {
+	    return null;
+	}
 
-        if (value.getClass() == String.class) {
-            return (String) value;
-        }
+	if (value.getClass() == String.class) {
+	    return (String) value;
+	}
 
-        return value.toString();
+	return value.toString();
     }
 
     public boolean getBooleanValue(String key) {
-        return getBooleanValue(key, false);
+	return getBooleanValue(key, false);
     }
 
     public boolean getBooleanValue(String key, boolean defaultValue) {
-        Object value = map.get(key);
-        return toBooleanValue(value, defaultValue);
+	Object value = map.get(key);
+	return toBooleanValue(value, defaultValue);
+    }
+
+    public short getShortValue(String key) {
+	return getShortValue(key, (short) 0);
+    }
+
+    public short getShortValue(String key, short defaultValue) {
+	Object value = map.get(key);
+	return toShortValue(value, defaultValue);
     }
 
     public int getIntValue(String key) {
-        return getIntValue(key, 0);
+	return getIntValue(key, 0);
     }
 
     public int getIntValue(String key, int defaultValue) {
-        Object value = map.get(key);
-        return toIntValue(value, defaultValue);
+	Object value = map.get(key);
+	return toIntValue(value, defaultValue);
     }
 
     public long getLongValue(String key) {
-        return getLongValue(key, 0L);
+	return getLongValue(key, 0L);
     }
 
     public long getLongValue(String key, long defaultValue) {
-        Object value = map.get(key);
-        return toLongValue(value, defaultValue);
+	Object value = map.get(key);
+	return toLongValue(value, defaultValue);
     }
-    
+
     public BigDecimal getBigDecimal(String key) {
-        Object value = map.get(key);
-        return toBigDecimal(value);
+	Object value = map.get(key);
+	return toBigDecimal(value);
     }
 
     public JsonObject getJsonObject(String key) {
-        return (JsonObject) map.get(key);
+	return (JsonObject) map.get(key);
     }
 
     public JsonArray getJsonArray(String key) {
-        return (JsonArray) map.get(key);
+	return (JsonArray) map.get(key);
     }
 
     @Override
     public Object put(String key, Object value) {
-        return map.put(key, value);
+	return map.put(key, value);
     }
 
     @Override
     public Object remove(Object name) {
-        return map.remove(name);
+	return map.remove(name);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void putAll(Map map) {
-        map.putAll(map);
+	map.putAll(map);
     }
 
     @Override
     public void clear() {
-        map.clear();
+	map.clear();
     }
 
     @Override
     public Set<String> keySet() {
-        return map.keySet();
+	return map.keySet();
     }
 
     @Override
     public Collection<Object> values() {
-        return map.values();
+	return map.values();
     }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {
-        return map.entrySet();
+	return map.entrySet();
     }
 
     @Override
     public int hashCode() {
-        return map.hashCode();
+	return map.hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
+	if (this == obj) {
+	    return true;
+	}
 
-        if (obj == null) {
-            return false;
-        }
+	if (obj == null) {
+	    return false;
+	}
 
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
+	if (getClass() != obj.getClass()) {
+	    return false;
+	}
 
-        JsonObject other = (JsonObject) obj;
-        return this.map.equals(other.map);
+	JsonObject other = (JsonObject) obj;
+	return this.map.equals(other.map);
     }
 
     public String toString() {
-        StringWriter buf = new StringWriter();
+	try {
+	    StringWriter buf = new StringWriter();
 
-        JsonWriter writer = new JsonWriter(buf);
-        writer.writeObject(this);
-        writer.close();
+	    JsonWriter writer = new JsonWriter(buf);
+	    writer.writeObject(this);
+	    writer.close();
 
-        return buf.toString();
+	    return buf.toString();
+	} catch (IOException e) {
+	    throw new JsonException(e);
+	}
     }
 }

@@ -41,10 +41,13 @@
 package javax.json;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
-import javax.json.JsonTokenizer.Token;
+import javax.json.spi.JsonProvider;
+import javax.json.stream.JsonParser;
+
 
 /**
  * A JSON reader.
@@ -64,7 +67,7 @@ import javax.json.JsonTokenizer.Token;
  */
 public class JsonReader implements /* Auto */Closeable {
 
-    private JsonTokenizer tokenizer;
+    private JsonParser parser;
 
     /**
      * Creates a JSON reader from a character stream
@@ -73,7 +76,7 @@ public class JsonReader implements /* Auto */Closeable {
      * @return a JSON reader
      */
     public JsonReader(Reader reader){
-        tokenizer = new JsonTokenizer(reader);
+        this.parser = JsonProvider.provider().createParser(reader);
     }
     
     public JsonReader(String text) {
@@ -81,81 +84,11 @@ public class JsonReader implements /* Auto */Closeable {
     }
 
     public Object read() {
-        if (tokenizer.token() == Token.LBRACE) {
-            return readJsonObject();
-        }
-
-        Token token = tokenizer.token();
-
-        if (token == Token.INT) {
-            Object value;
-
-            if (tokenizer.longValue() >= Integer.MIN_VALUE && tokenizer.longValue() <= Integer.MAX_VALUE) {
-                value = (int) tokenizer.longValue();
-            } else {
-                value = tokenizer.longValue();
-            }
-
-            tokenizer.nextToken();
-            return value;
-        }
-
-        if (token == Token.DOUBLE) {
-            Object value = tokenizer.doubleValue();
-            tokenizer.nextToken();
-            return value;
-        }
-
-        if (token == Token.STRING) {
-            Object value = tokenizer.stringValue();
-            tokenizer.nextToken();
-            return value;
-        }
-
-        if (token == Token.LBRACKET) {
-            return readJsonArray();
-        }
-
-        if (token == Token.TRUE) {
-            tokenizer.nextToken();
-            return true;
-        }
-
-        if (token == Token.FALSE) {
-            tokenizer.nextToken();
-            return false;
-        }
-
-        if (token == Token.NULL) {
-            tokenizer.nextToken();
-            return null;
-        }
-
-        throw new IllegalArgumentException("illegal token : " + token);
+        return parser.read();
     }
 
     public JsonArray readJsonArray() {
-        tokenizer.accept(Token.LBRACKET);
-        JsonArray array = new JsonArray();
-
-        for (;;) {
-            Token token = tokenizer.token();
-
-            if (token == Token.RBRACKET) {
-                break;
-            }
-
-            if (token == Token.COMMA) {
-                tokenizer.nextToken();
-                continue;
-            }
-
-            Object item = read();
-            array.add(item);
-        }
-
-        tokenizer.accept(Token.RBRACKET);
-        return array;
+        return parser.readJsonArray();
     }
 
     /**
@@ -167,39 +100,7 @@ public class JsonReader implements /* Auto */Closeable {
      * @throws IllegalStateException if this method or close method is already called
      */
     public JsonObject readJsonObject() {
-        tokenizer.accept(Token.LBRACE);
-        JsonObject map = new JsonObject();
-
-        for (;;) {
-            Token token = tokenizer.token();
-
-            if (token == Token.RBRACE) {
-                break;
-            }
-
-            if (token == Token.COMMA) {
-                tokenizer.nextToken();
-                continue;
-            }
-
-            String key;
-            {
-                if (token != Token.STRING) {
-                    throw new IllegalArgumentException("illegal json token : " + token);
-                }
-                key = tokenizer.stringValue();
-                tokenizer.nextToken();
-            }
-
-            tokenizer.accept(Token.COLON);
-
-            Object value = read();
-
-            map.put(key, value);
-        }
-
-        tokenizer.accept(Token.RBRACE);
-        return map;
+        return parser.readJsonObject();
     }
 
     /**
@@ -207,8 +108,8 @@ public class JsonReader implements /* Auto */Closeable {
      * source.
      */
     @Override
-    public void close() {
-        this.tokenizer.close();
+    public void close() throws IOException {
+        this.parser.close();
     }
 
 }

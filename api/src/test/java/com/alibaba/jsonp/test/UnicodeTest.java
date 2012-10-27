@@ -11,6 +11,7 @@ import junit.framework.TestCase;
 public class UnicodeTest extends TestCase {
 
     public void test_readObject() throws Exception {
+
         String text = "{\"id\":123,\"name\":\"jitu\",\"country\":\"\\u4E2D\\u56FD\"}";
         StringReader strReader = new StringReader(text);
         JsonReader jsonReader = new JsonReader(strReader);
