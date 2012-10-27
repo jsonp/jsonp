@@ -27,9 +27,6 @@ public class JsonArrayTest extends TestCase {
         JsonArray array2 = jsonReader.readJsonArray();
         jsonReader.close();
         
-        System.out.println(jsonString);
-        System.out.println(array2.toString());
-        
         Assert.assertEquals(array.size(), array2.size());
         for (int i = 0; i < array.size(); ++i) {
             Assert.assertEquals(array.get(i), array2.get(i));

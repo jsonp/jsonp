@@ -50,7 +50,7 @@ public class JsonStructure {
         }
 
         if (value instanceof Number) {
-            return ((Integer) value).intValue();
+            return ((Number) value).intValue();
         }
 
         if (value instanceof String) {
@@ -66,7 +66,7 @@ public class JsonStructure {
         }
 
         if (value instanceof Number) {
-            return ((Long) value).intValue();
+            return ((Number) value).longValue();
         }
 
         if (value instanceof String) {
