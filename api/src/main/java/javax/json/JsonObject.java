@@ -59,30 +59,17 @@ public class JsonObject extends JsonStructure implements Map<String, Object> {
     public JsonObject() {
 	map = new LinkedHashMap<String, Object>();
     }
-
-    @Override
-    public int size() {
-	return map.size();
+    
+    public JsonObject(int initialCapacity) {
+	map = new LinkedHashMap<String, Object>(initialCapacity);
     }
 
-    @Override
-    public boolean isEmpty() {
-	return map.isEmpty();
+    public JsonObject getJsonObject(String key) {
+	return (JsonObject) map.get(key);
     }
 
-    @Override
-    public boolean containsKey(Object name) {
-	return map.containsKey(name);
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-	return map.containsValue(value);
-    }
-
-    @Override
-    public Object get(Object o) {
-	return map.get(o);
+    public JsonArray getJsonArray(String key) {
+	return (JsonArray) map.get(key);
     }
 
     public String getString(String key) {
@@ -105,15 +92,6 @@ public class JsonObject extends JsonStructure implements Map<String, Object> {
     public boolean getBooleanValue(String key, boolean defaultValue) {
 	Object value = map.get(key);
 	return toBooleanValue(value, defaultValue);
-    }
-
-    public short getShortValue(String key) {
-	return getShortValue(key, (short) 0);
-    }
-
-    public short getShortValue(String key, short defaultValue) {
-	Object value = map.get(key);
-	return toShortValue(value, defaultValue);
     }
 
     public int getIntValue(String key) {
@@ -139,12 +117,29 @@ public class JsonObject extends JsonStructure implements Map<String, Object> {
 	return toBigDecimal(value);
     }
 
-    public JsonObject getJsonObject(String key) {
-	return (JsonObject) map.get(key);
+    @Override
+    public int size() {
+	return map.size();
     }
 
-    public JsonArray getJsonArray(String key) {
-	return (JsonArray) map.get(key);
+    @Override
+    public boolean isEmpty() {
+	return map.isEmpty();
+    }
+
+    @Override
+    public boolean containsKey(Object name) {
+	return map.containsKey(name);
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+	return map.containsValue(value);
+    }
+
+    @Override
+    public Object get(Object o) {
+	return map.get(o);
     }
 
     @Override

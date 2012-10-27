@@ -60,6 +60,46 @@ public class JsonArray extends JsonStructure implements List<Object> {
     public JsonArray() {
 	items = new ArrayList<Object>();
     }
+    
+    public JsonObject getJsonObject(int index) {
+	return (JsonObject) get(index);
+    }
+    
+    public JsonArray getJsonArray(int index) {
+	return (JsonArray) get(index);
+    }
+
+    public boolean getBooleanValue(int index) {
+	return getBooleanValue(index, false);
+    }
+
+    public boolean getBooleanValue(int index, boolean defaultValue) {
+	Object value = items.get(index);
+	return toBooleanValue(value, defaultValue);
+    }
+
+    public int getIntValue(int index) {
+	return getIntValue(index, 0);
+    }
+
+    public int getIntValue(int index, int defaultValue) {
+	Object value = items.get(index);
+	return toIntValue(value, defaultValue);
+    }
+
+    public long getLongValue(int index) {
+	return getLongValue(index, 0L);
+    }
+
+    public long getLongValue(int index, long defaultValue) {
+	Object value = items.get(index);
+	return toLongValue(value, defaultValue);
+    }
+
+    public BigDecimal getBigDecimal(int index) {
+	Object value = items.get(index);
+	return toBigDecimal(value);
+    }
 
     @Override
     public int size() {
@@ -158,50 +198,7 @@ public class JsonArray extends JsonStructure implements List<Object> {
 	return items.get(index);
     }
 
-    public JsonObject getJsonObject(int index) {
-	return (JsonObject) get(index);
-    }
-
-    public boolean getBooleanValue(int index) {
-	return getBooleanValue(index, false);
-    }
-
-    public boolean getBooleanValue(int index, boolean defaultValue) {
-	Object value = items.get(index);
-	return toBooleanValue(value, defaultValue);
-    }
-
-    public short getShortValue(int index) {
-	return getShortValue(index, (short) 0);
-    }
-
-    public short getShortValue(int index, short defaultValue) {
-	Object value = items.get(index);
-	return toShortValue(value, defaultValue);
-    }
-
-    public int getIntValue(int index) {
-	return getIntValue(index, 0);
-    }
-
-    public int getIntValue(int index, int defaultValue) {
-	Object value = items.get(index);
-	return toIntValue(value, defaultValue);
-    }
-
-    public long getLongValue(int index) {
-	return getLongValue(index, 0L);
-    }
-
-    public long getLongValue(int index, long defaultValue) {
-	Object value = items.get(index);
-	return toLongValue(value, defaultValue);
-    }
-
-    public BigDecimal getBigDecimal(int index) {
-	Object value = items.get(index);
-	return toBigDecimal(value);
-    }
+    
 
     @Override
     public Object set(int index, Object o) {
@@ -256,4 +253,6 @@ public class JsonArray extends JsonStructure implements List<Object> {
 	    throw new JsonException(e);
 	}
     }
+    
+    
 }

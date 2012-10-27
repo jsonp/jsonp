@@ -65,7 +65,7 @@ import javax.json.stream.JsonParser;
  * @author Jitendra Kotamraju
  * @author wenshao
  */
-public class JsonReader implements /* Auto */Closeable {
+public class JsonReader implements Closeable {
 
     private JsonParser parser;
 
@@ -77,6 +77,10 @@ public class JsonReader implements /* Auto */Closeable {
      */
     public JsonReader(Reader reader){
         this.parser = JsonProvider.provider().createParser(reader);
+    }
+    
+    public JsonReader(Reader reader, JsonConfiguration config){
+        this.parser = JsonProvider.provider().createParser(reader, config);
     }
     
     public JsonReader(String text) {

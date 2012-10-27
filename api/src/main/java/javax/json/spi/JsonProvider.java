@@ -52,89 +52,96 @@ import javax.json.stream.JsonParser;
 
 /**
  * Service provider for JSON objects.
- *
+ * 
  * @see ServiceLoader
  * @author Jitendra Kotamraju
  */
 public abstract class JsonProvider {
 
     /**
-     * A constant representing the name of the default
-     * {@code JsonProvider} implementation class.
+     * A constant representing the name of the default {@code JsonProvider}
+     * implementation class.
      */
-    private static final String DEFAULT_PROVIDER
-            = "com.alibaba.json.JsonProviderImpl";
+    private static String DEFAULT_PROVIDER = "com.alibaba.json.JsonProviderImpl";
 
     protected JsonProvider() {
     }
 
     /**
-     *
+     * 
      * Creates a JSON provider object. The provider is loaded using
      * {@link ServiceLoader#load(Class)} method. If there is no available
-     * service provider is found, then the default service provider
-     * is loaded using the current thread's
+     * service provider is found, then the default service provider is loaded
+     * using the current thread's
      * {@linkplain java.lang.Thread#getContextClassLoader context class loader}.
-     *
+     * 
      * @see ServiceLoader
      * @return a JSON provider
      */
     public static JsonProvider provider() {
-        ServiceLoader<JsonProvider> loader = ServiceLoader.load(JsonProvider.class);
-        Iterator<JsonProvider> it = loader.iterator();
-        if (it.hasNext()) {
-            return it.next();
-        }
+	ServiceLoader<JsonProvider> loader = ServiceLoader
+		.load(JsonProvider.class);
+	Iterator<JsonProvider> it = loader.iterator();
+	if (it.hasNext()) {
+	    return it.next();
+	}
 
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        try {
-            Class<?> clazz = (classLoader == null)
-                ? Class.forName(DEFAULT_PROVIDER)
-                : classLoader.loadClass(DEFAULT_PROVIDER);
-            return (JsonProvider)clazz.newInstance();
-        } catch (ClassNotFoundException x) {
-            throw new JsonException(
-                    "Provider " + DEFAULT_PROVIDER + " not found", x);
-        } catch (Exception x) {
-            throw new JsonException(
-                    "Provider " + DEFAULT_PROVIDER + " could not be instantiated: " + x,
-                    x);
-        }
+	ClassLoader classLoader = Thread.currentThread()
+		.getContextClassLoader();
+	try {
+	    Class<?> clazz = (classLoader == null) ? Class
+		    .forName(DEFAULT_PROVIDER) : classLoader
+		    .loadClass(DEFAULT_PROVIDER);
+	    return (JsonProvider) clazz.newInstance();
+	} catch (ClassNotFoundException x) {
+	    throw new JsonException("Provider " + DEFAULT_PROVIDER
+		    + " not found", x);
+	} catch (Exception x) {
+	    throw new JsonException("Provider " + DEFAULT_PROVIDER
+		    + " could not be instantiated: " + x, x);
+	}
     }
 
     /**
      * Creates a JSON parser from the specified character stream
-     *
-     * @param reader i/o reader from which JSON is to be read
+     * 
+     * @param reader
+     *            i/o reader from which JSON is to be read
      */
     public abstract JsonParser createParser(Reader reader);
 
     /**
      * Creates a JSON parser from the specified character stream. The created
      * parser is configured with the specified configuration.
-     *
-     * @param reader i/o reader from which JSON is to be read
-     * @param config configuration of the parser
+     * 
+     * @param reader
+     *            i/o reader from which JSON is to be read
+     * @param config
+     *            configuration of the parser
      */
-    public abstract JsonParser createParser(Reader reader, JsonConfiguration config);
+    public abstract JsonParser createParser(Reader reader,
+	    JsonConfiguration config);
 
     /**
      * Creates a JSON generator which can be used to write JSON text to the
      * specified character stream.
-     *
-     * @param writer a i/o writer to which JSON is written
+     * 
+     * @param writer
+     *            a i/o writer to which JSON is written
      */
     public abstract JsonGenerator createGenerator(Writer writer);
 
     /**
      * Creates a JSON generator which can be used to write JSON text to the
-     * specified character stream. The created generator is configured
-     * with the specified configuration.
-     *
-     * @param writer i/o writer to which JSON is written
-     * @param config configuration of the generator
+     * specified character stream. The created generator is configured with the
+     * specified configuration.
+     * 
+     * @param writer
+     *            i/o writer to which JSON is written
+     * @param config
+     *            configuration of the generator
      */
-    public abstract JsonGenerator createGenerator(Writer writer, JsonConfiguration config);
-
+    public abstract JsonGenerator createGenerator(Writer writer,
+	    JsonConfiguration config);
 
 }

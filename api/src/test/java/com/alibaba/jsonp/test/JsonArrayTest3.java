@@ -25,7 +25,7 @@ public class JsonArrayTest3 extends TestCase {
 
         Assert.assertEquals(array.size(), array2.size());
         for (int i = 0; i < array.size(); ++i) {
-            Assert.assertEquals(array.get(i), array2.getShortValue(i));
+            Assert.assertEquals(array.get(i), (short) array2.getIntValue(i));
         }
     }
 }
