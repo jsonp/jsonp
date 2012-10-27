@@ -11,7 +11,8 @@ import junit.framework.TestCase;
 public class UnicodeTest extends TestCase {
 
     public void test_readObject() throws Exception {
-        StringReader strReader = new StringReader("{\"id\":123,\"name\":\"jitu\",\"country\":\"\\u4E2D\\u56FD\"}");
+        String text = "{\"id\":123,\"name\":\"jitu\",\"country\":\"\\u4E2D\\u56FD\"}";
+        StringReader strReader = new StringReader(text);
         JsonReader jsonReader = new JsonReader(strReader);
 
         Object obj = jsonReader.read();
@@ -23,5 +24,8 @@ public class UnicodeTest extends TestCase {
         Assert.assertEquals(123, jsonObject.get("id"));
         Assert.assertEquals("jitu", jsonObject.get("name"));
         Assert.assertEquals("中国", jsonObject.get("country"));
+        
+        String text2 = jsonObject.toString();
+        System.out.println(text2);
     }
 }

@@ -3,6 +3,7 @@ package javax.json;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
+import java.math.BigDecimal;
 
 public class JsonTokenizer implements Closeable {
 
@@ -16,7 +17,7 @@ public class JsonTokenizer implements Closeable {
 
     private String       stringValue;
     private long         longValue;
-    private double       doubleValue;
+    private BigDecimal   doubleValue;
 
     /**
      * Creates a JSON reader from a character stream
@@ -51,7 +52,7 @@ public class JsonTokenizer implements Closeable {
         return this.longValue;
     }
 
-    public double doubleValue() {
+    public BigDecimal doubleValue() {
         return this.doubleValue;
     }
 
@@ -206,14 +207,14 @@ public class JsonTokenizer implements Closeable {
     }
 
     private void scanDigit() {
-        boolean isNegate = false;
-        if (ch == '-') {
-            isNegate = true;
-            nextChar();
-        }
-
         int dotCount = 0;
         StringBuilder digitBuf = new StringBuilder();
+        
+        if (ch == '-' || ch == '+') {
+            digitBuf.append(ch);
+            nextChar();
+        }
+        
         for (;;) {
             digitBuf.append(ch);
             nextChar();
@@ -229,20 +230,26 @@ public class JsonTokenizer implements Closeable {
                 break;
             }
         }
+        
+        if (ch == 'E' || ch == 'e') {
+            digitBuf.append(ch);
+            nextChar();
+            if (ch == '+' || ch == '-') {
+                digitBuf.append(ch);
+                nextChar();
+            }
+            
+            while (isDigit(ch)) {
+                digitBuf.append(ch);
+                nextChar();
+            }
+        }
 
         if (dotCount == 0) {
-            long longValue = Long.parseLong(digitBuf.toString());
-            if (isNegate) {
-                longValue = -longValue;
-            }
-            this.longValue = longValue;
+            this.longValue = Long.parseLong(digitBuf.toString());
             token = Token.INT;
         } else {
-            double doubleValue = Double.parseDouble(digitBuf.toString());
-            if (isNegate) {
-                doubleValue = -doubleValue;
-            }
-            this.doubleValue = doubleValue;
+            this.doubleValue = new BigDecimal(digitBuf.toString());
             token = Token.DOUBLE;
         }
     }

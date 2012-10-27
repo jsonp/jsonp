@@ -45,6 +45,7 @@ import java.io.Flushable;
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -69,6 +70,8 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
 
     private char[]       buf;
     private int          pos;
+
+    private boolean      closed = false;
 
     /**
      * Creates a JSON writer which can be used to write a JSON object or array to the specified i/o writer.
@@ -142,42 +145,65 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
         write("null");
         return this;
     }
-    
+
     public JsonWriter writeString(String value) {
         return writeString(value, true);
     }
 
     public JsonWriter writeString(String value, boolean checkSpecial) {
+        closeCheck();
+
         if (!checkSpecial) {
             write('"');
             write(value);
             write('"');
             return this;
         }
-        
+
         if (value == null) {
             return writeNull();
         }
-        
+
         write('"');
         for (int i = 0; i < value.length(); ++i) {
             char c = value.charAt(i);
             if (c == '"') {
-                write("\\\"");
+                write('\\');
+                write('"');
             } else if (c == '\n') {
-                write("\\n");
+                write('\\');
+                write('n');
             } else if (c == '\r') {
-                write("\\r");
+                write('\\');
+                write('r');
             } else if (c == '\\') {
-                write("\\\\");
+                write('\\');
+                write('\\');
             } else if (c == '\t') {
-                write("\\t");
+                write('\\');
+                write('t');
             } else if (c == '\b') {
-                write("\\b");
+                write('\\');
+                write('b');
             } else if (c == '\f') {
-                write("\\f");
+                write('\\');
+                write('f');
             } else {
-                write(c);
+                if (c < ' ' || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')) {
+                    char u0 = digits[(c >>> 12) & 15];
+                    char u1 = digits[(c >>> 8) & 15];
+                    char u2 = digits[(c >>> 4) & 15];
+                    char u3 = digits[c & 15];
+
+                    write('\\');
+                    write('u');
+                    write(u0);
+                    write(u1);
+                    write(u2);
+                    write(u3);
+                } else {
+                    write(c);
+                }
             }
         }
         write('"');
@@ -191,6 +217,8 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
     }
 
     public JsonWriter writeInt(int i) {
+        closeCheck();
+
         if (i == Integer.MIN_VALUE) {
             write("-2147483648");
             return this;
@@ -201,11 +229,12 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
         int newcount = pos + size;
         if (newcount > buf.length) {
             flush();
+            getChars(i, size, buf);
+            pos = size;
+        } else {
+            getChars(i, newcount, buf);
+            pos = newcount;
         }
-
-        getChars(i, newcount, buf);
-
-        pos = newcount;
 
         return this;
     }
@@ -221,12 +250,12 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
         int newcount = pos + size;
         if (newcount > buf.length) {
             flush();
+            getChars(i, size, buf);
+            pos = size;
+        } else {
+            getChars(i, newcount, buf);
+            pos = newcount;
         }
-
-        getChars(i, newcount, buf);
-
-        pos = newcount;
-
         return this;
     }
 
@@ -371,6 +400,8 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
     }
 
     protected void write(String text) {
+        closeCheck();
+
         try {
             if (text.length() > buf.length) {
                 if (pos > 0) {
@@ -381,13 +412,14 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
                 if (text.length() + pos > buf.length) {
                     int rest = buf.length - pos;
                     text.getChars(0, rest, buf, pos);
-                    writer.write(buf, 0, pos);
+                    writer.write(buf);
                     pos = 0;
-                    
+
                     text.getChars(rest, text.length(), buf, 0);
                     pos = text.length() - rest;
                 } else {
-                    text.getChars(0, text.length(), buf, buf.length);
+                    text.getChars(0, text.length(), buf, pos);
+                    pos += text.length();
                 }
             }
         } catch (IOException e) {
@@ -396,6 +428,8 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
     }
 
     protected void write(char ch) {
+        closeCheck();
+
         if (pos < buf.length) {
             buf[pos++] = ch;
             return;
@@ -403,7 +437,8 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
 
         try {
             writer.write(buf);
-            pos = 0;
+            buf[0] = ch;
+            pos = 1;
         } catch (IOException e) {
             throw new JsonException(e);
         }
@@ -416,6 +451,14 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
     @Override
     public void close() {
         flush();
+
+        closed = true;
+    }
+
+    void closeCheck() {
+        if (closed) {
+            throw new IllegalStateException("write/writeObject/writeArray/close method is already called.");
+        }
     }
 
     @Override
@@ -426,6 +469,7 @@ public class JsonWriter implements /* Auto */Closeable, Flushable {
 
         try {
             writer.write(buf, 0, pos);
+            Arrays.fill(buf, '\0');
             pos = 0;
         } catch (IOException e) {
             throw new JsonException(e);

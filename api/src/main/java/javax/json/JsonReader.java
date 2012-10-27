@@ -42,6 +42,7 @@ package javax.json;
 
 import java.io.Closeable;
 import java.io.Reader;
+import java.io.StringReader;
 
 import javax.json.JsonTokenizer.Token;
 
@@ -73,6 +74,10 @@ public class JsonReader implements /* Auto */Closeable {
      */
     public JsonReader(Reader reader){
         tokenizer = new JsonTokenizer(reader);
+    }
+    
+    public JsonReader(String text) {
+        this (new StringReader(text));
     }
 
     public Object read() {
