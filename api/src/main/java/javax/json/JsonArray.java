@@ -47,12 +47,9 @@ import java.math.BigDecimal;
  * @author wenshao
  */
 public interface JsonArray extends JsonStructure {
-    int size();
     Object get(int index);
-
     JsonObject getJsonObject(int index);
     JsonArray getJsonArray(int index);
-    
     String getString(int index);
     boolean getBooleanValue(int index);
     boolean getBooleanValue(int index, boolean defaultValue);
@@ -61,6 +58,8 @@ public interface JsonArray extends JsonStructure {
     long getLongValue(int index);
     long getLongValue(int index, long defaultValue);
     BigDecimal getBigDecimal(int index);
+    
+    boolean contains(Object o);
     
     boolean add(Object e);
 }

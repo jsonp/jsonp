@@ -159,7 +159,7 @@ public class JsonObjectImpl extends JsonStructureImpl implements JsonObject {
             StringWriter buf = new StringWriter();
 
             JsonWriter writer = new JsonWriter(buf);
-            writer.writeObject(this);
+            writer.writeJsonObject(this);
             writer.close();
 
             return buf.toString();

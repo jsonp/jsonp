@@ -48,15 +48,9 @@ import java.util.Set;
  * @author wenshao
  */
 public interface JsonObject extends JsonStructure {
-    int size();
     Object get(String name);
-    boolean containsKey(String name);
-    
-    Set<String> keySet();
-    
     JsonObject getJsonObject(String name);
     JsonArray getJsonArray(String name);
-    
     String getString(String name);
     boolean getBooleanValue(String name);
     boolean getBooleanValue(String name, boolean defaultValue);
@@ -65,6 +59,9 @@ public interface JsonObject extends JsonStructure {
     long getLongValue(String name);
     long getLongValue(String name, long defaultValue);
     BigDecimal getBigDecimal(String name);
+    
+    boolean containsKey(String name);
+    Set<String> keySet();
     
     Object put(String name, Object value);
 }

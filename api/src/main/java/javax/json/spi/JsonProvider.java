@@ -40,8 +40,11 @@
 
 package javax.json.spi;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
@@ -61,93 +64,149 @@ import javax.json.stream.JsonParser;
 public abstract class JsonProvider {
 
     /**
-     * A constant representing the name of the default {@code JsonProvider}
-     * implementation class.
+     * A constant representing the name of the default {@code JsonProvider} implementation class.
      */
     private static String DEFAULT_PROVIDER = "com.alibaba.json.JsonProviderImpl";
 
-    protected JsonProvider() {
+    protected JsonProvider(){
     }
 
     /**
-     * 
-     * Creates a JSON provider object. The provider is loaded using
-     * {@link ServiceLoader#load(Class)} method. If there is no available
-     * service provider is found, then the default service provider is loaded
-     * using the current thread's
+     * Creates a JSON provider object. The provider is loaded using {@link ServiceLoader#load(Class)} method. If there
+     * is no available service provider is found, then the default service provider is loaded using the current thread's
      * {@linkplain java.lang.Thread#getContextClassLoader context class loader}.
      * 
      * @see ServiceLoader
      * @return a JSON provider
      */
     public static JsonProvider provider() {
-	ServiceLoader<JsonProvider> loader = ServiceLoader
-		.load(JsonProvider.class);
-	Iterator<JsonProvider> it = loader.iterator();
-	if (it.hasNext()) {
-	    return it.next();
-	}
+        ServiceLoader<JsonProvider> loader = ServiceLoader.load(JsonProvider.class);
+        Iterator<JsonProvider> it = loader.iterator();
+        if (it.hasNext()) {
+            return it.next();
+        }
 
-	ClassLoader classLoader = Thread.currentThread()
-		.getContextClassLoader();
-	try {
-	    Class<?> clazz = (classLoader == null) ? Class
-		    .forName(DEFAULT_PROVIDER) : classLoader
-		    .loadClass(DEFAULT_PROVIDER);
-	    return (JsonProvider) clazz.newInstance();
-	} catch (ClassNotFoundException x) {
-	    throw new JsonException("Provider " + DEFAULT_PROVIDER
-		    + " not found", x);
-	} catch (Exception x) {
-	    throw new JsonException("Provider " + DEFAULT_PROVIDER
-		    + " could not be instantiated: " + x, x);
-	}
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Class<?> clazz = (classLoader == null) ? Class.forName(DEFAULT_PROVIDER) : classLoader.loadClass(DEFAULT_PROVIDER);
+            return (JsonProvider) clazz.newInstance();
+        } catch (ClassNotFoundException x) {
+            throw new JsonException("Provider " + DEFAULT_PROVIDER + " not found", x);
+        } catch (Exception x) {
+            throw new JsonException("Provider " + DEFAULT_PROVIDER + " could not be instantiated: " + x, x);
+        }
     }
 
     /**
      * Creates a JSON parser from the specified character stream
      * 
-     * @param reader
-     *            i/o reader from which JSON is to be read
+     * @param reader i/o reader from which JSON is to be read
      */
     public abstract JsonParser createParser(Reader reader);
 
     /**
-     * Creates a JSON parser from the specified character stream. The created
-     * parser is configured with the specified configuration.
+     * Creates a JSON parser from the specified character stream. The created parser is configured with the specified
+     * configuration.
      * 
-     * @param reader
-     *            i/o reader from which JSON is to be read
-     * @param config
-     *            configuration of the parser
+     * @param reader i/o reader from which JSON is to be read
+     * @param config configuration of the parser
      */
-    public abstract JsonParser createParser(Reader reader,
-	    JsonConfiguration config);
+    public abstract JsonParser createParser(Reader reader, JsonConfiguration config);
 
     /**
-     * Creates a JSON generator which can be used to write JSON text to the
-     * specified character stream.
+     * Creates a JSON parser from the specified byte stream. The character encoding of the stream is determined as per
+     * the <a href="http://tools.ietf.org/rfc/rfc4627.txt">RFC</a>.
      * 
-     * @param writer
-     *            a i/o writer to which JSON is written
+     * @param in i/o stream from which JSON is to be read
+     * @throws JsonException if encoding cannot be determined or i/o error
+     */
+    public abstract JsonParser createParser(InputStream in);
+
+    /**
+     * Creates a JSON parser from the specified byte stream. The bytes of the stream are decoded to characters using the
+     * specified charset.
+     * 
+     * @param in i/o stream from which JSON is to be read
+     * @param charset a charset
+     * @throws JsonException if i/o error
+     */
+    public abstract JsonParser createParser(InputStream in, Charset charset);
+
+    /**
+     * Creates a JSON parser from the specified byte stream. The created parser is configured with the specified
+     * configuration. The character encoding of the stream is determinedas per the <a
+     * href="http://tools.ietf.org/rfc/rfc4627.txt">RFC</a>
+     * 
+     * @param in i/o stream from which JSON is to be read
+     * @param config configuration of the parser
+     */
+    public abstract JsonParser createParser(InputStream in, JsonConfiguration config);
+
+    /**
+     * Creates a JSON parser from the specified byte stream. The bytes of the stream are decoded to characters using the
+     * specified charset. The created parser is configured with the specified configuration.
+     * 
+     * @param in i/o stream from which JSON is to be read
+     * @param charset a charset
+     * @param config configuration of the parser
+     */
+    public abstract JsonParser createParser(InputStream in, Charset charset, JsonConfiguration config);
+
+    /**
+     * Creates a JSON generator which can be used to write JSON text to the specified character stream.
+     * 
+     * @param writer a i/o writer to which JSON is written
      */
     public abstract JsonGenerator createGenerator(Writer writer);
 
     /**
-     * Creates a JSON generator which can be used to write JSON text to the
-     * specified character stream. The created generator is configured with the
+     * Creates a JSON generator which can be used to write JSON text to the specified character stream. The created
+     * generator is configured with the specified configuration.
+     * 
+     * @param writer i/o writer to which JSON is written
+     * @param config configuration of the generator
+     */
+    public abstract JsonGenerator createGenerator(Writer writer, JsonConfiguration config);
+
+    /**
+     * Creates a JSON generator which can be used to write JSON text to the specified byte stream.
+     * 
+     * @param out i/o stream to which JSON is written
+     */
+    public abstract JsonGenerator createGenerator(OutputStream out);
+
+    /**
+     * Creates a JSON generator which can be used to write JSON text to the specified byte stream. Characters written to
+     * the stream are encoded into bytes using UTF-8 encoding. The created generator is configured with the specified
+     * configuration.
+     * 
+     * @param out i/o stream to which JSON is written
+     * @param config configuration of the generator
+     */
+    public abstract JsonGenerator createGenerator(OutputStream out, JsonConfiguration config);
+
+    /**
+     * Creates a JSON generator which can be used to write JSON text to the specified byte stream. Characters written to
+     * the stream are encoded into bytes using the specified charset.
+     * 
+     * @param out i/o stream to which JSON is written
+     * @param charset a charset
+     */
+    public abstract JsonGenerator createGenerator(OutputStream out, Charset charset);
+
+    /**
+     * Creates a JSON generator which can be used to write JSON text to the specified byte stream. Characters written to
+     * the stream are encoded into bytes using the specified charset. The created generator is configured with the
      * specified configuration.
      * 
-     * @param writer
-     *            i/o writer to which JSON is written
-     * @param config
-     *            configuration of the generator
+     * @param out i/o stream to which JSON is written
+     * @param charset the character charset of the stream
+     * @param config configuration of the generator
      */
-    public abstract JsonGenerator createGenerator(Writer writer,
-	    JsonConfiguration config);
-    
-    
+    public abstract JsonGenerator createGenerator(OutputStream out, Charset charset, JsonConfiguration config);
+
     public abstract JsonObject createJsonObject();
+
     public abstract JsonArray createJsonArray();
 
 }

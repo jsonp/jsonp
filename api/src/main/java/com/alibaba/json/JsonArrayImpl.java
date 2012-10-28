@@ -194,7 +194,7 @@ public class JsonArrayImpl extends JsonStructureImpl implements JsonArray {
             StringWriter buf = new StringWriter();
 
             JsonWriter writer = new JsonWriter(buf);
-            writer.writeArray(this);
+            writer.writeJsonArray(this);
             writer.close();
 
             return buf.toString();

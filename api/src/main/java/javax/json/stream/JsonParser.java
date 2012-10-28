@@ -1,6 +1,7 @@
 package javax.json.stream;
 
 import java.io.Closeable;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Iterator;
 
@@ -8,13 +9,13 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 
 public interface JsonParser extends Closeable {
-    Object read();
-
-    JsonObject readJsonObject();
-
-    JsonArray readJsonArray();
+    Object parseAny();
     
-    int getDepth();
+    <T> T parseAny(Type type);
+
+    JsonObject parseJsonObject();
+
+    JsonArray parseJsonArray();
     
     /**
      * Event for parser state while parsing the JSON
@@ -45,7 +46,8 @@ public interface JsonParser extends Closeable {
          * an array or object is parsed. The number value itself can be
          * accessed using {@link javax.json.JsonNumber} methods
          */
-        VALUE_NUMBER,
+        VALUE_INTEGER,
+        VALUE_DECIMAL,
         /**
          * Event for a true value. This event indicates a true value in an
          * array or object is parsed.
@@ -77,11 +79,11 @@ public interface JsonParser extends Closeable {
      * Returns a String for name(key), string value and number value. This
      * method is only called when the parser state is one of
      * {@link Event#KEY_NAME}, {@link Event#VALUE_STRING},
-     * {@link Event#VALUE_NUMBER}.
+     * {@link Event#VALUE_INTEGER}.
      * 
      * @return name when the parser state is {@link Event#KEY_NAME}. string
      *         value when the parser state is {@link Event#VALUE_STRING}. number
-     *         value when the parser state is {@link Event#VALUE_NUMBER}.
+     *         value when the parser state is {@link Event#VALUE_INTEGER}.
      * @throws IllegalStateException
      *             when the parser is not in one of KEY_NAME, VALUE_STRING,
      *             VALUE_NUMBER states
@@ -93,7 +95,7 @@ public interface JsonParser extends Closeable {
      * {@code new BigDecimal(getString()).intValue()}. Note that this conversion
      * can lose information about the overall magnitude and precision of the
      * number value as well as return a result with the opposite sign. This
-     * method is only called when the parser is in {@link Event#VALUE_NUMBER}
+     * method is only called when the parser is in {@link Event#VALUE_INTEGER}
      * state.
      * 
      * @return an integer for JSON number.
@@ -109,7 +111,7 @@ public interface JsonParser extends Closeable {
      * conversion can lose information about the overall magnitude and precision
      * of the number value as well as return a result with the opposite sign.
      * This method is only called when the parser is in
-     * {@link Event#VALUE_NUMBER} state.
+     * {@link Event#VALUE_INTEGER} state.
      * 
      * @return a long for JSON number.
      * @throws IllegalStateException
@@ -121,7 +123,7 @@ public interface JsonParser extends Closeable {
     /**
      * Returns JSON number as a {@code BigDecimal}. The BigDecimal is created
      * using {@code new BigDecimal(getString())}. This method is only called
-     * when the parser is in {@link Event#VALUE_NUMBER} state.
+     * when the parser is in {@link Event#VALUE_INTEGER} state.
      * 
      * @return a BigDecimal for JSON number
      * @throws IllegalStateException

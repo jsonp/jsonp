@@ -9,9 +9,11 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 
 public interface JsonGenerator extends Closeable, Flushable {
-    JsonGenerator writeObject(JsonObject jsonObject);
+    JsonGenerator writeJsonObject(JsonObject jsonObject);
 
-    JsonGenerator writeArray(JsonArray jsonArray);
+    JsonGenerator writeJsonArray(JsonArray jsonArray);
+    
+    JsonGenerator writeAny(Object o);
 
     JsonGenerator beginObject();
 

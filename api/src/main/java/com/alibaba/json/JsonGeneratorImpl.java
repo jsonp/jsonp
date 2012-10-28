@@ -51,7 +51,7 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
      * @throws JsonException if the specified JSON object cannot be written due to i/o error
      * @throws IllegalStateException if this method, or writeArray or close method is already called
      */
-    public JsonGeneratorImpl writeObject(JsonObject jsonObject) {
+    public JsonGeneratorImpl writeJsonObject(JsonObject jsonObject) {
         if (jsonObject == null) {
             return this.writeNull();
         }
@@ -79,7 +79,7 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
      * @throws JsonException if the specified JSON object cannot be written due to i/o error
      * @throws IllegalStateException if this method, or writeObject or close method is already called
      */
-    public JsonGeneratorImpl writeArray(JsonArray jsonArray) {
+    public JsonGeneratorImpl writeJsonArray(JsonArray jsonArray) {
         if (jsonArray == null) {
             return writeNull();
         }
@@ -91,7 +91,7 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
             }
 
             Object item = jsonArray.get(i);
-            writeObjectInternal(item);
+            writeAny(item);
         }
         endArray();
 
@@ -278,7 +278,7 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
         throw new JsonException("not support type : " + o.getClass());
     }
 
-    protected JsonGeneratorImpl writeObjectInternal(Object o) {
+    public JsonGeneratorImpl writeAny(Object o) {
         if (o == null) {
             return writeNull();
         }
@@ -322,11 +322,11 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
         }
 
         if (o instanceof JsonObject) {
-            return writeObject((JsonObject) o);
+            return writeJsonObject((JsonObject) o);
         }
 
         if (o instanceof JsonArray) {
-            return writeArray((JsonArray) o);
+            return writeJsonArray((JsonArray) o);
         }
 
         return writeJavaBean(o);
@@ -334,7 +334,7 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 
     public JsonGeneratorImpl writeKeyValue(String key, Object value) {
         writeKey(key);
-        writeObjectInternal(value);
+        writeAny(value);
 
         return this;
     }

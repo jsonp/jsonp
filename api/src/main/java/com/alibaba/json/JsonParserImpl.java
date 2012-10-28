@@ -2,6 +2,7 @@ package com.alibaba.json;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Iterator;
 
@@ -37,9 +38,9 @@ public class JsonParserImpl implements JsonParser {
         return config;
     }
 
-    public Object read() {
+    public Object parseAny() {
         if (tokenizer.token() == JsonToken.LBRACE) {
-            return readJsonObject();
+            return parseJsonObject();
         }
 
         JsonToken token = tokenizer.token();
@@ -70,7 +71,7 @@ public class JsonParserImpl implements JsonParser {
         }
 
         if (token == JsonToken.LBRACKET) {
-            return readJsonArray();
+            return parseJsonArray();
         }
 
         if (token == JsonToken.TRUE) {
@@ -91,7 +92,7 @@ public class JsonParserImpl implements JsonParser {
         throw new IllegalArgumentException("illegal token : " + token);
     }
 
-    public JsonArray readJsonArray() {
+    public JsonArray parseJsonArray() {
         tokenizer.accept(JsonToken.LBRACKET);
         JsonArrayImpl array = new JsonArrayImpl();
 
@@ -107,7 +108,7 @@ public class JsonParserImpl implements JsonParser {
                 continue;
             }
 
-            Object item = read();
+            Object item = parseAny();
             array.add(item);
         }
 
@@ -123,7 +124,7 @@ public class JsonParserImpl implements JsonParser {
      * @throws JsonException if a JsonObject or JsonArray cannot be created due to i/o error or incorrect representation
      * @throws IllegalStateException if this method or close method is already called
      */
-    public JsonObject readJsonObject() {
+    public JsonObject parseJsonObject() {
         tokenizer.accept(JsonToken.LBRACE);
         JsonObject map = new JsonObjectImpl();
 
@@ -150,7 +151,7 @@ public class JsonParserImpl implements JsonParser {
 
             tokenizer.accept(JsonToken.COLON);
 
-            Object value = read();
+            Object value = parseAny();
 
             map.put(key, value);
         }
@@ -177,7 +178,6 @@ public class JsonParserImpl implements JsonParser {
         return iterator;
     }
 
-    @Override
     public int getDepth() {
         return iterator.context.depth;
     }
@@ -338,7 +338,8 @@ public class JsonParserImpl implements JsonParser {
                             switch (context.event) {
                                 case START_OBJECT:
                                 case VALUE_FALSE:
-                                case VALUE_NUMBER:
+                                case VALUE_INTEGER:
+                                case VALUE_DECIMAL:
                                 case VALUE_NULL:
                                 case VALUE_STRING:
                                 case VALUE_TRUE:
@@ -376,7 +377,7 @@ public class JsonParserImpl implements JsonParser {
                     } else {
                         tokenizer.nextToken();
                     }
-                    return context.event = Event.VALUE_NUMBER;
+                    return context.event = Event.VALUE_INTEGER;
                 case DOUBLE:
                     if (context != null) {
                         context.value = tokenizer.doubleValue();
@@ -387,7 +388,7 @@ public class JsonParserImpl implements JsonParser {
                     } else {
                         tokenizer.nextToken();
                     }
-                    return context.event = Event.VALUE_NUMBER;
+                    return context.event = Event.VALUE_INTEGER;
                 case EOF:
                     return null;
                 default:
@@ -417,5 +418,10 @@ public class JsonParserImpl implements JsonParser {
             this.structureType = structureType;
             this.event = event;
         }
+    }
+
+    @Override
+    public <T> T parseAny(Type type) {
+        throw new UnsupportedOperationException();
     }
 }

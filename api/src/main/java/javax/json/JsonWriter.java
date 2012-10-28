@@ -43,7 +43,9 @@ package javax.json;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.charset.Charset;
 
 import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGenerator;
@@ -64,104 +66,128 @@ import javax.json.stream.JsonGenerator;
  * @author Jitendra Kotamraju
  * @author wenshao
  */
-public class JsonWriter implements /* Auto */Closeable, Flushable {
+public class JsonWriter implements Closeable, Flushable {
+
     private JsonGenerator generator;
-    
+
     /**
-     * Creates a JSON writer which can be used to write a
-     * JSON {@link JsonObject object} or {@link JsonArray array}
+     * Creates a JSON writer which can be used to write a JSON {@link JsonObject object} or {@link JsonArray array}
      * structure to the specified character stream.
-     *
+     * 
      * @param writer to which JSON object or array is written
      */
-    public JsonWriter(Writer writer) {
+    public JsonWriter(Writer writer){
         this.generator = JsonProvider.provider().createGenerator(writer);
     }
-    
+
     /**
-     * Creates a JSON writer which can be used to write a
-     * JSON {@link JsonObject object} or {@link JsonArray array}
+     * Creates a JSON writer which can be used to write a JSON {@link JsonObject object} or {@link JsonArray array}
      * structure to the specified character stream.
-     *
+     * 
      * @param writer to which JSON object or array is written
      */
-    public JsonWriter(Writer writer, JsonConfiguration config) {
-	this.generator = JsonProvider.provider().createGenerator(writer, config);
+    public JsonWriter(Writer writer, JsonConfiguration config){
+        this.generator = JsonProvider.provider().createGenerator(writer, config);
     }
 
     /**
-     * Writes the specified JSON {@link JsonArray array} to the output source.
-     * This method needs to be called only once for a writer instance.
+     * Creates a JSON writer which can be used to write a JSON {@link JsonObject object} or {@link JsonArray array}
+     * structure to the specified byte stream. Characters written to the stream are encoded into bytes using UTF-8
+     * encoding.
      * 
-     * @param array
-     *            JSON array that is to be written to the output source
-     * @throws JsonException
-     *             if the specified JSON object cannot be written due to i/o
-     *             error
-     * @throws IllegalStateException
-     *             if this method, writeObject, write or close method is already
-     *             called
+     * @param out to which JSON object or array is written
      */
-    public void writeArray(JsonArray array) {
-	generator.writeArray(array);
+    public JsonWriter(OutputStream out){
+        this.generator = JsonProvider.provider().createGenerator(out);
     }
 
     /**
-     * Writes the specified JSON {@link JsonObject object} to the output source.
-     * This method needs to be called only once for a writer instance.
+     * Creates a JSON writer which can be used to write a JSON {@link JsonObject object} or {@link JsonArray array}
+     * structure to the specified byte stream. Characters written to the stream are encoded into bytes using UTF-8
+     * encoding. The created writer is configured with the specified configuration.
      * 
-     * @param object
-     *            JSON object that is to be written to the output source
-     * @throws JsonException
-     *             if the specified JSON object cannot be written due to i/o
-     *             error
-     * @throws IllegalStateException
-     *             if this method, writeArray, write or close method is already
-     *             called
+     * @param out to which JSON object or array is written
+     * @param config configuration of the writer
+     * @throws IllegalArgumentException if a feature in the configuration is not known
      */
-    public void writeObject(JsonObject object) {
-	generator.writeObject(object);
+    public JsonWriter(OutputStream out, JsonConfiguration config){
+        this.generator = JsonProvider.provider().createGenerator(out, config);
     }
 
     /**
-     * Writes the specified JSON {@link JsonObject object} or {@link JsonArray
-     * array} to the output source. This method needs to be called only once for
-     * a writer instance.
+     * Creates a JSON writer which can be used to write a JSON {@link JsonObject object} or {@link JsonArray array}
+     * structure to the specified byte stream. Characters written to the stream are encoded into bytes using the
+     * specified charset.
      * 
-     * @param value
-     *            JSON array or object that is to be written to the output
-     *            source
-     * @throws JsonException
-     *             if the specified JSON object cannot be written due to i/o
-     *             error
-     * @throws IllegalStateException
-     *             if this method, writeObject, writeArray or close method is
-     *             already called
+     * @param out to which JSON object or array is written
+     * @param charset a charset
      */
-    public void write(JsonStructure value) {
-	if (value == null) {
-	    generator.writeNull();
-	    return;
-	}
-	
-	if (value instanceof JsonObject) {
-	    generator.writeObject((JsonObject) value);    
-	} else {
-	    generator.writeArray((JsonArray) value);
-	}
+    public JsonWriter(OutputStream out, Charset charset){
+        this.generator = JsonProvider.provider().createGenerator(out, charset);
     }
 
     /**
-     * Closes this JSON writer and frees any resources associated with the
-     * writer. This closes the underlying output source.
+     * Creates a JSON writer which can be used to write a JSON {@link JsonObject object} or {@link JsonArray array}
+     * structure to the specified byte stream. Characters written to the stream are encoded into bytes using the
+     * specified charset. The created writer is configured with the specified configuration.
+     * 
+     * @param out to which JSON object or array is written
+     * @param charset a charset
+     * @param config configuration of the writer
+     * @throws IllegalArgumentException if a feature in the configuration is not known
+     */
+    public JsonWriter(OutputStream out, Charset charset, JsonConfiguration config){
+        this.generator = JsonProvider.provider().createGenerator(out, charset, config);
+    }
+
+    /**
+     * Writes the specified JSON {@link JsonArray array} to the output source. This method needs to be called only once
+     * for a writer instance.
+     * 
+     * @param array JSON array that is to be written to the output source
+     * @throws JsonException if the specified JSON object cannot be written due to i/o error
+     * @throws IllegalStateException if this method, writeObject, write or close method is already called
+     */
+    public void writeJsonArray(JsonArray array) {
+        generator.writeJsonArray(array);
+    }
+
+    /**
+     * Writes the specified JSON {@link JsonObject object} to the output source. This method needs to be called only
+     * once for a writer instance.
+     * 
+     * @param object JSON object that is to be written to the output source
+     * @throws JsonException if the specified JSON object cannot be written due to i/o error
+     * @throws IllegalStateException if this method, writeArray, write or close method is already called
+     */
+    public void writeJsonObject(JsonObject object) {
+        generator.writeJsonObject(object);
+    }
+
+    public void writeAny(Object value) {
+        if (value == null) {
+            generator.writeNull();
+            return;
+        }
+
+        if (value instanceof JsonObject) {
+            generator.writeJsonObject((JsonObject) value);
+        } else {
+            generator.writeJsonArray((JsonArray) value);
+        }
+    }
+
+    /**
+     * Closes this JSON writer and frees any resources associated with the writer. This closes the underlying output
+     * source.
      */
     @Override
     public void close() throws IOException {
-	generator.close();
+        generator.close();
     }
 
     @Override
     public void flush() throws IOException {
-	generator.flush();
+        generator.flush();
     }
 }
