@@ -1,6 +1,7 @@
 package com.alibaba.jsonp.test;
 
 import javax.json.JsonArray;
+import javax.json.JsonFactory;
 import javax.json.JsonReader;
 
 import junit.framework.Assert;
@@ -9,7 +10,7 @@ import junit.framework.TestCase;
 public class JsonArrayTest3 extends TestCase {
 
     public void testArrayEquals() throws Exception {
-        JsonArray array = new JsonArray();
+        JsonArray array = JsonFactory.createJsonArray();
 
         for (short i = -128; i < 127; ++i) {
             array.add(i);

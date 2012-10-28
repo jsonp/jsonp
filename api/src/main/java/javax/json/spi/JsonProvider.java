@@ -45,8 +45,10 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.ServiceLoader;
 
+import javax.json.JsonArray;
 import javax.json.JsonConfiguration;
 import javax.json.JsonException;
+import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
 
@@ -143,5 +145,9 @@ public abstract class JsonProvider {
      */
     public abstract JsonGenerator createGenerator(Writer writer,
 	    JsonConfiguration config);
+    
+    
+    public abstract JsonObject createJsonObject();
+    public abstract JsonArray createJsonArray();
 
 }

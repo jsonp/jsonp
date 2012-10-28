@@ -3,7 +3,9 @@ package com.alibaba.json;
 import java.io.Reader;
 import java.io.Writer;
 
+import javax.json.JsonArray;
 import javax.json.JsonConfiguration;
+import javax.json.JsonObject;
 import javax.json.spi.JsonProvider;
 import javax.json.stream.JsonGenerator;
 import javax.json.stream.JsonParser;
@@ -28,6 +30,16 @@ public class JsonProviderImpl extends JsonProvider {
     @Override
     public JsonGenerator createGenerator(Writer writer, JsonConfiguration config) {
 	return new JsonGeneratorImpl(writer, config);
+    }
+
+    @Override
+    public JsonObject createJsonObject() {
+        return new JsonObjectImpl();
+    }
+
+    @Override
+    public JsonArray createJsonArray() {
+        return new JsonArrayImpl();
     }
 
 }

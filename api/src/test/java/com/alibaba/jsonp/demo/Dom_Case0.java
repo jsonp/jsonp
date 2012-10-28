@@ -1,6 +1,7 @@
 package com.alibaba.jsonp.demo;
 
 import javax.json.JsonArray;
+import javax.json.JsonFactory;
 import javax.json.JsonObject;
 
 import junit.framework.Assert;
@@ -9,7 +10,7 @@ import junit.framework.TestCase;
 public class Dom_Case0 extends TestCase {
 
     public void test_toString() throws Exception {
-        JsonObject json = new JsonObject();
+        JsonObject json = JsonFactory.createJsonObject();
         json.put("id", 123);
         json.put("name", "jitu");
         
@@ -20,10 +21,10 @@ public class Dom_Case0 extends TestCase {
     }
     
     public void test_array_toString() throws Exception {
-        JsonArray jsonArray = new JsonArray();
+        JsonArray jsonArray = JsonFactory.createJsonArray();
         jsonArray.add(123);
         jsonArray.add("jitu");
-        jsonArray.add(new JsonObject());
+        jsonArray.add(JsonFactory.createJsonObject());
         
         Assert.assertEquals("[123,\"jitu\",{}]", jsonArray.toString());
     }
