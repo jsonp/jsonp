@@ -1,26 +1,20 @@
 package javax.json;
 
-import java.text.DateFormat;
+import java.util.Properties;
+
 
 public class JsonConfiguration {
+    private Properties properties;
 
-    private DateFormat  dateFormat;
-
-    private boolean prettyFormat = false;
-
-    public DateFormat getDateFormat() {
-        return dateFormat;
+    public JsonConfiguration() {
+        
     }
-
-    public void setDateFormat(DateFormat dateFormat) {
-        this.dateFormat = dateFormat;
+    
+    public Object get(String name) {
+        return properties.getProperty(name);
     }
-
-    public boolean isPrettyFormat() {
-        return prettyFormat;
-    }
-
-    public void setPrettyFormat(boolean prettyFormat) {
-        this.prettyFormat = prettyFormat;
+    
+    public Object put(String name, Object value) {
+        return properties.put(name, value);
     }
 }

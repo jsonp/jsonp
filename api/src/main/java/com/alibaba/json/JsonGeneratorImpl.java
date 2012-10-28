@@ -264,7 +264,7 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 
         checkValue();
 
-        DateFormat dateFormat = config.getDateFormat();
+        DateFormat dateFormat = (DateFormat) config.get("dataFormat");
         String formated = dateFormat.format(value);
         writeString(formated);
         return this;

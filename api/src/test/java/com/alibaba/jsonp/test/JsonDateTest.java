@@ -18,7 +18,7 @@ public class JsonDateTest extends TestCase {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         
         JsonConfiguration config = new JsonConfiguration();
-        config.setDateFormat(dateFormat);
+        config.put("dateFormat", dateFormat);
         
         String dateText = "2012-12-01 23:22:21";
         Date date = dateFormat.parse(dateText);
