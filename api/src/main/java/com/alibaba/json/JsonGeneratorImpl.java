@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -263,8 +262,7 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
 
         checkValue();
 
-        DateFormat dateFormat = new SimpleDateFormat(config.getDateFormat());
-
+        DateFormat dateFormat = config.getDateFormat();
         String formated = dateFormat.format(value);
         writeString(formated);
         return this;

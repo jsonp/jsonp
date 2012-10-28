@@ -15,13 +15,13 @@ public class JsonDateTest extends TestCase {
 
     public void test_date() throws Exception {
         
-        String dateFormat = "yyyy-MM-dd HH:mm:ss";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         
         JsonConfiguration config = new JsonConfiguration();
         config.setDateFormat(dateFormat);
         
         String dateText = "2012-12-01 23:22:21";
-        Date date = new SimpleDateFormat(dateFormat).parse(dateText);
+        Date date = dateFormat.parse(dateText);
         
         StringWriter writer = new StringWriter();
         
