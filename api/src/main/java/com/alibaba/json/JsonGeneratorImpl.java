@@ -57,8 +57,10 @@ public class JsonGeneratorImpl implements JsonGenerator, Closeable, Flushable {
         }
 
         beginObject();
+        
+        JsonObjectImpl jsonObjectImpl = (JsonObjectImpl) jsonObject;
 
-        for (Map.Entry<?, ?> entry : jsonObject.entrySet()) {
+        for (Map.Entry<?, ?> entry : jsonObjectImpl.entrySet()) {
             String key = (String) entry.getKey();
             Object value = entry.getValue();
 

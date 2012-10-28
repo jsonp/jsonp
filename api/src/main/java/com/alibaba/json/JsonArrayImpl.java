@@ -80,77 +80,62 @@ public class JsonArrayImpl extends JsonStructureImpl implements JsonArray {
         return items.size();
     }
 
-    @Override
     public boolean isEmpty() {
         return items.isEmpty();
     }
 
-    @Override
     public boolean contains(Object o) {
         return items.contains(o);
     }
 
-    @Override
     public Iterator<Object> iterator() {
         return items.iterator();
     }
 
-    @Override
     public Object[] toArray() {
         return items.toArray();
     }
 
-    @Override
     public <T> T[] toArray(T[] ts) {
         return items.toArray(ts);
     }
 
-    @Override
     public boolean add(Object o) {
         return items.add(o);
     }
 
-    @Override
     public boolean remove(Object o) {
         return items.remove(o);
     }
 
-    @Override
     public boolean containsAll(Collection<?> objects) {
         return items.containsAll(objects);
     }
 
-    @Override
     public boolean addAll(Collection<? extends Object> objects) {
         return items.addAll(objects);
     }
 
-    @Override
     public boolean addAll(int index, Collection<? extends Object> objects) {
         return items.addAll(index, objects);
     }
 
-    @Override
     public boolean removeAll(Collection<?> objects) {
         return items.removeAll(objects);
     }
 
-    @Override
     public boolean retainAll(Collection<?> objects) {
         return items.retainAll(objects);
     }
 
-    @Override
     public void clear() {
         items.clear();
     }
 
-    @Override
     public int hashCode() {
         return items.hashCode();
     }
 
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -172,42 +157,34 @@ public class JsonArrayImpl extends JsonStructureImpl implements JsonArray {
         return items.get(index);
     }
 
-    @Override
     public Object set(int index, Object o) {
         return items.set(index, o);
     }
 
-    @Override
     public void add(int index, Object o) {
         items.add(index, o);
     }
 
-    @Override
     public Object remove(int index) {
         return items.remove(index);
     }
 
-    @Override
     public int indexOf(Object o) {
         return items.indexOf(o);
     }
 
-    @Override
     public int lastIndexOf(Object o) {
         return items.lastIndexOf(o);
     }
 
-    @Override
     public ListIterator<Object> listIterator() {
         return items.listIterator();
     }
 
-    @Override
     public ListIterator<Object> listIterator(int index) {
         return items.listIterator(index);
     }
 
-    @Override
     public List<Object> subList(int fromIndex, int toIndex) {
         return items.subList(fromIndex, toIndex);
     }

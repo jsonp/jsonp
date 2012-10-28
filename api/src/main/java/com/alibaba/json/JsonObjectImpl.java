@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.json.JsonArray;
@@ -83,23 +84,19 @@ public class JsonObjectImpl extends JsonStructureImpl implements JsonObject {
         return map.size();
     }
 
-    @Override
     public boolean isEmpty() {
         return map.isEmpty();
     }
 
-    @Override
-    public boolean containsKey(Object name) {
+    public boolean containsKey(String name) {
         return map.containsKey(name);
     }
 
-    @Override
     public boolean containsValue(Object value) {
         return map.containsValue(value);
     }
 
-    @Override
-    public Object get(Object o) {
+    public Object get(String o) {
         return map.get(o);
     }
 
@@ -108,18 +105,15 @@ public class JsonObjectImpl extends JsonStructureImpl implements JsonObject {
         return map.put(key, value);
     }
 
-    @Override
     public Object remove(Object name) {
         return map.remove(name);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
     public void putAll(Map map) {
         map.putAll(map);
     }
 
-    @Override
     public void clear() {
         map.clear();
     }
@@ -129,12 +123,10 @@ public class JsonObjectImpl extends JsonStructureImpl implements JsonObject {
         return map.keySet();
     }
 
-    @Override
     public Collection<Object> values() {
         return map.values();
     }
 
-    @Override
     public Set<Entry<String, Object>> entrySet() {
         return map.entrySet();
     }

@@ -41,13 +41,19 @@
 package javax.json;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Jitendra Kotamraju
  * @author wenshao
  */
-public interface JsonObject extends JsonStructure, Map<String, Object> {
+public interface JsonObject extends JsonStructure {
+    int size();
+    Object get(String name);
+    boolean containsKey(String name);
+    
+    Set<String> keySet();
+    
     JsonObject getJsonObject(String name);
     JsonArray getJsonArray(String name);
     
@@ -59,4 +65,6 @@ public interface JsonObject extends JsonStructure, Map<String, Object> {
     long getLongValue(String name);
     long getLongValue(String name, long defaultValue);
     BigDecimal getBigDecimal(String name);
+    
+    Object put(String name, Object value);
 }

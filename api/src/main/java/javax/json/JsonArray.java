@@ -41,13 +41,14 @@
 package javax.json;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @author Jitendra Kotamraju
  * @author wenshao
  */
-public interface JsonArray extends JsonStructure, List<Object> {
+public interface JsonArray extends JsonStructure {
+    int size();
+    Object get(int index);
 
     JsonObject getJsonObject(int index);
     JsonArray getJsonArray(int index);
@@ -60,4 +61,6 @@ public interface JsonArray extends JsonStructure, List<Object> {
     long getLongValue(int index);
     long getLongValue(int index, long defaultValue);
     BigDecimal getBigDecimal(int index);
+    
+    boolean add(Object e);
 }
