@@ -30,9 +30,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>javax.json</groupId>
-	<artifactId>jsonp-ri</artifactId>
-	<packaging>jar</packaging>
+	<artifactId>jsonp-api</artifactId>
 	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>Java API for Processing JSON (JSON-P)</name>
 	<description>JSR 353:Java API for Processing JSON</description>
 	<url>http://json-processing-spec.java.net</url>

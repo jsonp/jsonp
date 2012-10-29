@@ -93,6 +93,7 @@
         </plugins>
     </build>
     <modules>
-        <module>api</module>
+        <module>jsonp-api</module>
+        <module>jsonp-impl</module>
     </modules>
 </project>
