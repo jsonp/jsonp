@@ -95,5 +95,6 @@
     <modules>
         <module>jsonp-api</module>
         <module>jsonp-impl</module>
+        <module>jsonp-test</module>
     </modules>
 </project>
