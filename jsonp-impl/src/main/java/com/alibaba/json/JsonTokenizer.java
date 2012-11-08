@@ -3,10 +3,10 @@ package com.alibaba.json;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.math.BigDecimal;
 
 import javax.json.JsonException;
-
 
 public class JsonTokenizer implements Closeable {
 
@@ -15,12 +15,16 @@ public class JsonTokenizer implements Closeable {
     private final char[] buf;
     private int          bufLen;
     private int          index;
-    private JsonToken        token;
+    private JsonToken    token;
     private char         ch;
 
     private String       stringValue;
     private long         longValue;
     private BigDecimal   doubleValue;
+    
+    public JsonTokenizer(String text) {
+        this (new StringReader(text));
+    }
 
     /**
      * Creates a JSON reader from a character stream
@@ -186,6 +190,110 @@ public class JsonTokenizer implements Closeable {
         }
     }
 
+    private int             matchState;
+
+    public final static int NOT_MATCH      = -1;
+    public final static int NOT_MATCH_NAME = -2;
+    public final static int UNKOWN         = 0;
+    public final static int OBJECT         = 1;
+    public final static int ARRAY          = 2;
+    public final static int VALUE          = 3;
+    public final static int END            = 4;
+
+    public int matchFieldInt(String fieldName) {
+        matchState = UNKOWN;
+        
+        if (ch != '"') {
+            matchState = NOT_MATCH_NAME;
+            return 0;
+        }
+        nextChar();
+        
+        for (int i = 0; i < fieldName.length(); ++i) {
+            if (fieldName.charAt(i) != ch) {
+                matchState = NOT_MATCH_NAME;
+                return 0;
+            }
+            nextChar();
+        }
+        
+        if (ch != '"') {
+            matchState = NOT_MATCH_NAME;
+            return 0;
+        }
+        nextChar();
+        
+        if (ch != ':') {
+            matchState = NOT_MATCH_NAME;
+            return 0;
+        }
+        nextChar();
+        
+        boolean nagative = false;
+        if (ch == '-') {
+            nagative = true;
+            nextChar();
+        }
+        
+        int value = 0;
+        if (ch >= '0' && ch <= '9') {
+            value = ch - '0';
+            nextChar();
+            for (;;) {
+                if (ch >= '0' && ch <= '9') {
+                    value = value * 10 + ((int) ch - '0');
+                } else if (ch == '.') {
+                    matchState = NOT_MATCH;
+                    return 0;
+                } else {
+                    break;
+                }
+                nextChar();
+            }
+            if (value < 0) { // overflow
+                matchState = NOT_MATCH;
+                return 0;
+            }
+        } else {
+            matchState = NOT_MATCH;
+            return 0;
+        }
+        if (nagative) {
+            value = -value;
+        }
+        
+        if (ch == ',') {
+            nextChar();
+            matchState = VALUE;
+            token = JsonToken.COMMA;
+            return value;
+        }
+
+        if (ch == '}') {
+            nextChar();
+            if (ch == ',') {
+                token = JsonToken.COMMA;
+                nextChar();
+            } else if (ch == ']') {
+                token = JsonToken.RBRACKET;
+                nextChar();
+            } else if (ch == '}') {
+                token = JsonToken.RBRACE;
+                nextChar();
+            } else {
+                matchState = NOT_MATCH;
+                return 0;
+            }
+            matchState = END;
+        }
+
+        return value;
+    }
+    
+    public int getMatchState() {
+        return matchState;
+    }
+
     static boolean isDigit(char ch) {
         return ch >= '0' && ch <= '9';
     }
@@ -212,12 +320,12 @@ public class JsonTokenizer implements Closeable {
     private void scanDigit() {
         int dotCount = 0;
         StringBuilder digitBuf = new StringBuilder();
-        
+
         if (ch == '-' || ch == '+') {
             digitBuf.append(ch);
             nextChar();
         }
-        
+
         for (;;) {
             digitBuf.append(ch);
             nextChar();
@@ -233,7 +341,7 @@ public class JsonTokenizer implements Closeable {
                 break;
             }
         }
-        
+
         if (ch == 'E' || ch == 'e') {
             digitBuf.append(ch);
             nextChar();
@@ -241,7 +349,7 @@ public class JsonTokenizer implements Closeable {
                 digitBuf.append(ch);
                 nextChar();
             }
-            
+
             while (isDigit(ch)) {
                 digitBuf.append(ch);
                 nextChar();
@@ -285,7 +393,7 @@ public class JsonTokenizer implements Closeable {
                     strBuf.append('\t');
                 } else if (ch == 'u') {
                     char u1, u2, u3, u4;
-                    
+
                     nextChar();
                     u1 = ch;
                     nextChar();
@@ -294,9 +402,9 @@ public class JsonTokenizer implements Closeable {
                     u3 = ch;
                     nextChar();
                     u4 = ch;
-                    
+
                     int charCode = hex(u1) * 4096 + hex(u2) * 256 + hex(u3) * 16 + hex(u4);
-                    
+
                     strBuf.append((char) charCode);
                 } else {
                     throw new IllegalArgumentException("illegal string : " + strBuf);
@@ -309,20 +417,20 @@ public class JsonTokenizer implements Closeable {
         stringValue = strBuf.toString();
         token = JsonToken.STRING;
     }
-    
+
     static int hex(char ch) {
         if (ch >= '0' && ch <= '9') {
             return ch - '0';
         }
-        
+
         if (ch >= 'A' && ch <= 'F') {
             return ch - 'A' + 10;
         }
-        
+
         if (ch >= 'a' && ch <= 'f') {
             return ch - 'a' + 10;
         }
-        
+
         throw new IllegalArgumentException("illegal hex : " + ch);
     }
 }
